@@ -8,10 +8,10 @@
 
 | Name | Role | Student ID | GitHub Username |
 |------|------|------------|-----------------|
-| Nhat Chi Nguyen | Team Leader & Data Integration | 1492182 | - |
-| Wanhui Li | Supervised Learning Models | - | - |
-| Chang Lu | Correlation Analysis | - | - |
-| Jingxuan Bai | Clustering & Visualization | - | - |
+| Nhat Chi Nguyen | Data Integration | 1492182 | chi-n-nguyen |
+| Wanhui Li | Supervised Learning Models | 1450755 | Waiola77 |
+| Chang Lu | Correlation Analysis | 1551448 | 9uchang |
+| Jingxuan Bai | Clustering & Visualization | 1566889 | - |
 
 ## **Project Overview**
 
@@ -50,8 +50,8 @@ The project uses six VISTA 2023-2024 datasets:
 - **Person Data** (8,175 records): Individual demographics, employment, WFH patterns
 - **Trips Data** (24,457 records): Individual trip details and travel patterns
 - **Stops Data** (27,862 records): Trip stops and destinations
-- **Work Journeys** (1,819 records): Specific work-related travel patterns
-- **Education Journeys** (684 records): Education-related travel data
+- **Journeys to Work** (1,819 records): Specific work-related travel patterns
+- **Journeys to Education** (684 records): Education-related travel data
 
 ## **Analysis Components**
 
@@ -122,12 +122,4 @@ The project uses six VISTA 2023-2024 datasets:
 
 - **Course**: COMP20008, Elements of Data Processing
 - **Semester**: Semester 2, 2025
-- **Workshop**: Monday 4-6pm
-- **Tutor**: Andrew Pham
 - **Group**: W04G5
-
-## **Contact**
-
-For questions about this project, please contact the team leader:
-- **Nhat Chi Nguyen** (Student ID: 1492182)
-- **Email**: nhatchin@student.unimelb.edu.au
