@@ -10,8 +10,6 @@ import seaborn as sns
 # =====================================
 # Research Question: "What factors predict working-from-home adoption, 
 # and how do WFH patterns reshape household travel behavior?"
-# CHI - Team Leader & Data Integration
-# Dataset Analysis & Loading
 # Responsible: Nhat Chi Nguyen, 1492182
 # =====================================
 
