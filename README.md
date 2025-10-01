@@ -2,7 +2,7 @@
 
 ## **Research Question**
 
-**"What factors predict working-from-home adoption, and how do WFH patterns reshape household travel behavior?"**
+**"What factors predict working-from-home (WFH) adoption, and how do WFH patterns reshape household travel behavior?"**
 
 ## **Team Members**
 
@@ -20,7 +20,7 @@ This project analyzes VISTA 2023-2024 travel survey data to understand the facto
 ## **Project Structure**
 
 ```
-eodp-assignment-2/
+comp20008-a2/
 ├── 00_raw_data/                    # Original VISTA 2023-2024 datasets
 │   ├── household_vista_2023_2024.csv
 │   ├── person_vista_2023_2024.csv
