@@ -30,8 +30,14 @@ comp20008-a2/
 │   └── journey_to_education_vista_2023_2024.csv
 ├── 01_preprocessing/               # Data cleaning and feature engineering
 │   ├── scripts/
-│   │   ├── 11_initial_assessment.py
-│   │   └── 12_data_integration.py
+│   │   ├── initial_assessment.py
+│   │   ├── data_integration.py          # Orchestrator (modular)
+│   │   ├── data_integration_legacy.py   # Previous monolith (kept temporarily)
+│   │   ├── config.py
+│   │   ├── features.py
+│   │   ├── aggregates.py
+│   │   ├── validate.py
+│   │   └── weights.py
 │   └── outputs/
 │       ├── initial_data_overview.png
 │       ├── processed_person_master.csv
@@ -122,13 +128,13 @@ VISTA data includes expansion weights to ensure population representativeness:
 3. Run the initial assessment:
    ```bash
    cd 01_preprocessing/scripts
-   python 11_initial_assessment.py
+   python initial_assessment.py
    ```
 
 4. Run the full data integration pipeline (saves processed datasets under `01_preprocessing/outputs`):
    ```bash
    cd 01_preprocessing/scripts
-   python 12_data_integration.py
+   python data_integration.py
    ```
 
 ## **Expected Outcomes**
