@@ -1,3 +1,12 @@
+"""Aggregation and dataset construction utilities.
+
+Functions:
+- analyze_travel_start_times: morning trip categorization joined to persons
+- create_person_level_dataset: person+household merged dataset for ML
+- create_household_level_dataset: household+trip aggregates for clustering
+- create_journey_level_dataset: work journeys with person characteristics
+"""
+
 from typing import List
 import pandas as pd
 

@@ -137,6 +137,29 @@ VISTA data includes expansion weights to ensure population representativeness:
    python data_integration.py
    ```
 
+## **How to Produce Integration Outputs**
+
+To generate all cleaned and integrated datasets used by the team:
+
+```bash
+cd 01_preprocessing/scripts
+python data_integration.py
+```
+
+This will create the following files in `01_preprocessing/outputs/`:
+- `processed_person_master.csv`
+- `processed_household_master.csv`
+- `processed_journey_master.csv`
+- `processed_morning_travel.csv`
+- `data_dictionary.json`
+- `integration_validation_report.txt`
+
+Optional (faster I/O): install Parquet support to also save `.parquet` files
+
+```bash
+pip install pyarrow
+```
+
 ## **Expected Outcomes**
 
 - Identification of key predictors of WFH adoption

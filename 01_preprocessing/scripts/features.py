@@ -1,3 +1,10 @@
+"""Feature engineering utilities for WFH analysis.
+
+Functions:
+- create_wfh_features: builds WFH intensity, adoption, categories, and worker flag
+- create_household_wfh_metrics: aggregates person WFH to household metrics
+"""
+
 from typing import Dict, List
 import pandas as pd
 import config

@@ -1,3 +1,10 @@
+"""Weight utilities for person and journey datasets.
+
+Functions:
+- apply_weights_to_person_data: set person-level `weight`
+- set_journey_analysis_weight: set `analysis_weight` and `weight_source`
+"""
+
 import pandas as pd
 import config
 

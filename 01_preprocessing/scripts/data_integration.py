@@ -1,3 +1,11 @@
+"""Data integration orchestrator.
+
+Coordinates dataset loading, feature engineering, aggregation,
+validation, and exporting of processed datasets.
+
+Usage:
+  cd 01_preprocessing/scripts && python data_integration.py
+"""
 import os
 import json
 import warnings

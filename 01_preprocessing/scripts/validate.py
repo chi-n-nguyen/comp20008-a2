@@ -1,3 +1,12 @@
+"""Validation and cleaning utilities for preprocessing.
+
+Functions:
+- assert_required_columns: enforce presence of required columns
+- handle_missing_values: threshold-based missing value strategy
+- detect_outliers: IQR-based outlier detection summary
+- cap_outliers: cap numeric columns at 99th percentile
+"""
+
 from typing import List, Dict
 import pandas as pd
 import config

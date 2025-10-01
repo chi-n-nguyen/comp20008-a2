@@ -1,3 +1,10 @@
+"""Configuration for preprocessing pipeline.
+
+- Centralizes paths to raw data and outputs
+- Defines column groups, mappings, and thresholds
+- Imported by other modules to avoid hard-coded literals
+"""
+
 from typing import Dict, List
 
 # Paths

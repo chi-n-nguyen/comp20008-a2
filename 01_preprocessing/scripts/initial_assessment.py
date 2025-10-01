@@ -1,3 +1,14 @@
+"""Initial data assessment script.
+
+Loads VISTA datasets and produces:
+- dataset shapes, missing data, and duplicates
+- key linkage analysis (household-person, person-journey)
+- WFH-related column discovery and weight summaries
+- overview visualization saved to outputs
+
+Usage:
+  cd 01_preprocessing/scripts && python initial_assessment.py
+"""
 import pandas as pd
 import os
 import warnings
