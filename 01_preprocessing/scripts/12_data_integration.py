@@ -6,8 +6,6 @@ import json
 
 # =====================================
 # VISTA WFH Data Integration Pipeline
-# Research Question: "What factors predict working-from-home adoption, 
-# and how do WFH patterns reshape household travel behavior?"
 # Responsible: Nhat Chi Nguyen, 1492182
 # =====================================
 
@@ -44,7 +42,7 @@ def load_vista_datasets() -> Dict[str, Optional[pd.DataFrame]]:
                 df = pd.read_csv(path, low_memory=False)
             datasets[name] = df
             memory_mb = df.memory_usage(deep=True).sum() / (1024**2)
-            print(f"LOADED: {df.shape[0]:,} rows × {df.shape[1]} cols ({memory_mb:.1f} MB)")
+            print(f"LOADED: {df.shape[0]:,} rows x {df.shape[1]} cols ({memory_mb:.1f} MB)")
             
         except FileNotFoundError:
             print(f"FILE NOT FOUND: {path}")
@@ -400,19 +398,19 @@ def handle_missing_values(df: pd.DataFrame, dataset_name: str) -> pd.DataFrame:
         print(f"\n{col}: {missing_pct:.2f}% missing")
         
         if missing_pct > 50:
-            print(f"  → DROP column (too many missing)")
+            print(f"  -> DROP column (too many missing)")
             df_clean = df_clean.drop(columns=[col])
         
         elif str(df_clean[col].dtype) in ['object', 'category']:
-            print(f"  → Fill with 'Unknown'")
+            print(f"  -> Fill with 'Unknown'")
             df_clean[col] = df_clean[col].fillna('Unknown')
         
         elif str(df_clean[col].dtype) in ['int64', 'float64']:
             if missing_pct < 5:
-                print(f"  → Fill with median")
+                print(f"  -> Fill with median")
                 df_clean[col] = df_clean[col].fillna(df_clean[col].median())
             else:
-                print(f"  → Fill with 0 and create missing indicator")
+                print(f"  -> Fill with 0 and create missing indicator")
                 df_clean[f'{col}_missing'] = df_clean[col].isnull().astype(int)
                 df_clean[col] = df_clean[col].fillna(0)
     
@@ -565,7 +563,7 @@ def main() -> None:
     
     # Phase 7: Create master datasets
     person_master = create_person_level_dataset(persons_with_wfh, households_enhanced)
-    household_master = create_household_level_dataset(households_enhanced, persons_with_wfh, trips_df or pd.DataFrame())
+    household_master = create_household_level_dataset(households_enhanced, persons_with_wfh, trips_df if trips_df is not None else pd.DataFrame())
     
     if journey_work_df is None:
         print("Warning: journey_work dataset not available, creating empty journey master")
@@ -644,7 +642,7 @@ def main() -> None:
     print("Saved: integration_validation_report.txt")
     
     print(f"\n{'='*70}")
-    print("✅ DATA INTEGRATION COMPLETE!")
+    print("DATA INTEGRATION COMPLETE!")
     print("="*70)
     print(f"Person master: {len(person_master_clean)} rows")
     print(f"Household master: {len(household_master_clean)} rows")
