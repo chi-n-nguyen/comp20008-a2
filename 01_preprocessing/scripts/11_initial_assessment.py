@@ -59,7 +59,7 @@ def load_vista_datasets() -> Dict[str, pd.DataFrame]:
     return datasets
 
 def immediate_data_quality_assessment(datasets: Dict[str, pd.DataFrame]) -> None:
-    """Immediate data quality assessment as specified in requirements"""
+    """Immediate data quality assessment including expansion weights analysis"""
     
     print("\n" + "="*70)
     print("IMMEDIATE DATA QUALITY ASSESSMENT")
@@ -102,6 +102,14 @@ def immediate_data_quality_assessment(datasets: Dict[str, pd.DataFrame]) -> None
         
         # Data types summary
         print(f"Data types: {df.dtypes.value_counts().to_dict()}")
+        
+        # Expansion weights analysis
+        weight_cols = [col for col in df.columns if 'weight' in col.lower()]
+        if weight_cols:
+            print(f"Expansion weights found: {weight_cols}")
+            for weight_col in weight_cols:
+                weight_stats = df[weight_col].describe()
+                print(f"  {weight_col}: mean={weight_stats['mean']:.2f}, range=({weight_stats['min']:.2f}-{weight_stats['max']:.2f})")
         
         # Key columns preview for WFH research
         if df_name == 'person':
@@ -210,6 +218,44 @@ def preview_key_variables(datasets: Dict[str, pd.DataFrame]) -> None:
         if travel_cols:
             print(f"Travel variables: {travel_cols[:5]}")
 
+def analyze_expansion_weights(datasets: Dict[str, pd.DataFrame]) -> None:
+    """Analyze expansion weights across datasets"""
+    
+    print("\n" + "="*70)
+    print("EXPANSION WEIGHTS ANALYSIS")
+    print("="*70)
+    
+    # Check person weights
+    person_df = datasets.get('person')
+    if person_df is not None and 'perspoststratweight' in person_df.columns:
+        print("\nPERSON EXPANSION WEIGHTS:")
+        print("-" * 30)
+        weight_col = 'perspoststratweight'
+        total_weighted_pop = person_df[weight_col].sum()
+        unweighted_count = len(person_df)
+        print(f"Unweighted sample size: {unweighted_count:,}")
+        print(f"Weighted population estimate: {total_weighted_pop:,.0f}")
+        print(f"Average expansion factor: {total_weighted_pop/unweighted_count:.2f}")
+        
+        # WFH analysis with weights
+        if 'anywfh' in person_df.columns:
+            wfh_yes = person_df[person_df['anywfh'] == 'Yes']
+            wfh_weighted = wfh_yes[weight_col].sum()
+            total_workers = person_df[person_df['anywork'] == 'Yes'][weight_col].sum()
+            print(f"Weighted WFH adoption rate: {(wfh_weighted/total_workers)*100:.1f}%")
+    
+    # Check work journey weights
+    work_df = datasets.get('work_journeys')
+    if work_df is not None and 'journey_weight' in work_df.columns:
+        print("\nWORK JOURNEY EXPANSION WEIGHTS:")
+        print("-" * 30)
+        weight_col = 'journey_weight'
+        total_weighted_journeys = work_df[weight_col].sum()
+        unweighted_count = len(work_df)
+        print(f"Unweighted journey sample: {unweighted_count:,}")
+        print(f"Weighted journey population: {total_weighted_journeys:,.0f}")
+        print(f"Average expansion factor: {total_weighted_journeys/unweighted_count:.2f}")
+
 def create_data_overview_plot(datasets: Dict[str, pd.DataFrame]) -> None:
     """Create initial data overview visualization"""
     
@@ -314,6 +360,7 @@ def main() -> Dict[str, pd.DataFrame]:
     immediate_data_quality_assessment(datasets)
     analyze_dataset_relationships(datasets)
     preview_key_variables(datasets)
+    analyze_expansion_weights(datasets)
     create_data_overview_plot(datasets)
     
     

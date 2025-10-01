@@ -53,6 +53,14 @@ The project uses six VISTA 2023-2024 datasets:
 - **Journeys to Work** (1,819 records): Specific work-related travel patterns
 - **Journeys to Education** (684 records): Education-related travel data
 
+### **Expansion Weights**
+
+VISTA data includes expansion weights to ensure population representativeness:
+- **Person Data**: `perspoststratweight` - expands sample to Melbourne population
+- **Journey Data**: `journey_weight` - expands work journey sample to population
+- **Application**: All analyses multiply values by corresponding weights before statistical operations
+- **Purpose**: Results reflect actual population distribution rather than survey sample bias
+
 ## **Analysis Components**
 
 ### 1. Data Preprocessing & Integration
