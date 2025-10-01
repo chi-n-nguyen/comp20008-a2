@@ -31,9 +31,15 @@ comp20008-a2/
 ├── 01_preprocessing/               # Data cleaning and feature engineering
 │   ├── scripts/
 │   │   ├── 11_initial_assessment.py
-│   │   └── 12_feature_engineering.py
+│   │   └── 12_data_integration.py
 │   └── outputs/
-│       └── initial_data_overview.png
+│       ├── initial_data_overview.png
+│       ├── processed_person_master.csv
+│       ├── processed_household_master.csv
+│       ├── processed_journey_master.csv
+│       ├── processed_morning_travel.csv
+│       ├── data_dictionary.json
+│       └── integration_validation_report.txt
 ├── 02_correlation_analysis/        # Statistical correlation analysis
 ├── 03_supervised_learning/         # Machine learning models
 ├── 04_clustering_analysis/         # Unsupervised learning and segmentation
@@ -117,6 +123,12 @@ VISTA data includes expansion weights to ensure population representativeness:
    ```bash
    cd 01_preprocessing/scripts
    python 11_initial_assessment.py
+   ```
+
+4. Run the full data integration pipeline (saves processed datasets under `01_preprocessing/outputs`):
+   ```bash
+   cd 01_preprocessing/scripts
+   python 12_data_integration.py
    ```
 
 ## **Expected Outcomes**

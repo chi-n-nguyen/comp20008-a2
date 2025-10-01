@@ -1,0 +1,17 @@
+Weight Validation:
+  Person weights sum: 2,789,047
+  HH weights sum: 2,015,689
+
+WFH Distribution:
+  Total workers: 4361
+  WFH adopters: 1508
+  Adoption rate: 34.6%
+
+Missing Values After Cleaning:
+  Person: 0 total missing values
+  Household: 0 total missing values
+  Journey: 0 total missing values
+
+Merge Validation:
+  Unique households in person data: 2389
+  Unique persons in journey data: 1733
