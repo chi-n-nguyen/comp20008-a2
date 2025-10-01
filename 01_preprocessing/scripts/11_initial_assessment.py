@@ -1,11 +1,8 @@
 import pandas as pd
-import numpy as np
-from datetime import datetime
 import os
 import warnings
-from typing import Dict
+from typing import Dict, Optional, List, Any
 import matplotlib.pyplot as plt
-import seaborn as sns
 
 # =====================================
 # Research Question: "What factors predict working-from-home adoption, 
@@ -13,7 +10,7 @@ import seaborn as sns
 # Responsible: Nhat Chi Nguyen, 1492182
 # =====================================
 
-def load_vista_datasets() -> Dict[str, pd.DataFrame]:
+def load_vista_datasets() -> Dict[str, Optional[pd.DataFrame]]:
     """Load all VISTA 2023-2024 datasets with proper error handling"""
     
     print("="*70)
@@ -25,7 +22,7 @@ def load_vista_datasets() -> Dict[str, pd.DataFrame]:
     os.makedirs('../../01_preprocessing/outputs', exist_ok=True)
     
     # Dataset file paths - corrected to match actual structure
-    datasets = {}
+    datasets: Dict[str, Optional[pd.DataFrame]] = {}
     file_paths = {
         'household': '../../00_raw_data/household_vista_2023_2024.csv',
         'person': '../../00_raw_data/person_vista_2023_2024.csv', 
@@ -137,7 +134,7 @@ def analyze_dataset_relationships(datasets: Dict[str, pd.DataFrame]) -> None:
     household_df = datasets.get('household')
     person_df = datasets.get('person')
     work_journeys_df = datasets.get('work_journeys')
-    trips_df = datasets.get('trips')
+    # trips_df = datasets.get('trips')  # Not used in this function
     
     if household_df is not None and person_df is not None:
         print("\nHOUSEHOLD ↔ PERSON Linkage:")
@@ -160,8 +157,8 @@ def analyze_dataset_relationships(datasets: Dict[str, pd.DataFrame]) -> None:
         print("-" * 30)
         
         # Check person ID overlap for work analysis
-        person_ids = set()
-        work_person_ids = set()
+        person_ids: set = set()
+        work_person_ids: set = set()
         
         if 'hhid' in person_df.columns and 'persid' in person_df.columns:
             person_ids = set(zip(person_df['hhid'], person_df['persid']))
@@ -256,7 +253,7 @@ def analyze_expansion_weights(datasets: Dict[str, pd.DataFrame]) -> None:
         print(f"Weighted journey population: {total_weighted_journeys:,.0f}")
         print(f"Average expansion factor: {total_weighted_journeys/unweighted_count:.2f}")
 
-def create_data_overview_plot(datasets: Dict[str, pd.DataFrame]) -> None:
+def create_data_overview_plot(datasets: Dict[str, Optional[pd.DataFrame]]) -> None:
     """Create initial data overview visualization"""
     
     plt.style.use('default')
@@ -267,8 +264,8 @@ def create_data_overview_plot(datasets: Dict[str, pd.DataFrame]) -> None:
     colors = ['#E74C3C', '#3498DB', '#2ECC71', '#F39C12', '#9B59B6', '#1ABC9C']
     
     # Dataset sizes
-    dataset_names = []
-    dataset_sizes = []
+    dataset_names: List[str] = []
+    dataset_sizes: List[int] = []
     for name, df in datasets.items():
         if df is not None:
             dataset_names.append(name.replace('_', ' ').title())
@@ -280,13 +277,13 @@ def create_data_overview_plot(datasets: Dict[str, pd.DataFrame]) -> None:
     ax1.tick_params(axis='x', rotation=45, labelsize=10)
     ax1.tick_params(axis='y', labelsize=10)
     ax1.grid(axis='y', alpha=0.3)
-    for i, (bar, v) in enumerate(zip(bars1, dataset_sizes)):
+    for bar, v in zip(bars1, dataset_sizes):
         ax1.text(bar.get_x() + bar.get_width()/2, v + max(dataset_sizes)*0.01, 
                 f'{v:,}', ha='center', va='bottom', fontsize=10, fontweight='bold')
     
     # Missing data analysis for key datasets
     key_datasets = ['household', 'person']
-    missing_data = []
+    missing_data: List[float] = []
     for name in key_datasets:
         df = datasets.get(name)
         if df is not None:
@@ -301,8 +298,9 @@ def create_data_overview_plot(datasets: Dict[str, pd.DataFrame]) -> None:
     ax2.tick_params(axis='x', labelsize=12)
     ax2.tick_params(axis='y', labelsize=10)
     ax2.grid(axis='y', alpha=0.3)
-    for i, (bar, v) in enumerate(zip(bars2, missing_data)):
-        ax2.text(bar.get_x() + bar.get_width()/2, v + (max(missing_data) if max(missing_data) > 0 else 1)*0.05, 
+    for bar, v in zip(bars2, missing_data):
+        max_missing = max(missing_data) if missing_data and max(missing_data) > 0 else 1
+        ax2.text(bar.get_x() + bar.get_width()/2, v + max_missing*0.05, 
                 f'{v:.1f}%', ha='center', va='bottom', fontsize=11, fontweight='bold')
     
     # Data types distribution for person dataset
@@ -310,13 +308,13 @@ def create_data_overview_plot(datasets: Dict[str, pd.DataFrame]) -> None:
     if person_df is not None:
         dtype_counts = person_df.dtypes.value_counts()
         pie_colors = ['#FF5733', '#33A1FF', '#FFD700', '#FF69B4', '#32CD32', '#FF4500']
-        wedges, texts, autotexts = ax3.pie(dtype_counts.values, 
-                                          labels=[str(x) for x in dtype_counts.index], 
-                                          autopct='%1.1f%%', 
-                                          startangle=90,
-                                          colors=pie_colors[:len(dtype_counts)],
-                                          explode=[0.05]*len(dtype_counts),
-                                          shadow=True)
+        _, texts, autotexts = ax3.pie(dtype_counts.values, 
+                                      labels=[str(x) for x in dtype_counts.index], 
+                                      autopct='%1.1f%%', 
+                                      startangle=90,
+                                      colors=pie_colors[:len(dtype_counts)],
+                                      explode=[0.05]*len(dtype_counts),
+                                      shadow=True)
         ax3.set_title('Person Dataset: Data Types Distribution', fontsize=14, fontweight='bold', pad=20)
         for autotext in autotexts:
             autotext.set_color('white')
@@ -327,7 +325,7 @@ def create_data_overview_plot(datasets: Dict[str, pd.DataFrame]) -> None:
             text.set_fontweight('bold')
     
     # Memory usage by dataset
-    memory_usage = []
+    memory_usage: List[float] = []
     for name, df in datasets.items():
         if df is not None:
             memory_mb = df.memory_usage(deep=True).sum() / (1024**2)
@@ -341,8 +339,9 @@ def create_data_overview_plot(datasets: Dict[str, pd.DataFrame]) -> None:
     ax4.tick_params(axis='x', rotation=45, labelsize=10)
     ax4.tick_params(axis='y', labelsize=10)
     ax4.grid(axis='y', alpha=0.3)
-    for i, (bar, v) in enumerate(zip(bars4, memory_usage)):
-        ax4.text(bar.get_x() + bar.get_width()/2, v + max(memory_usage)*0.01, 
+    for bar, v in zip(bars4, memory_usage):
+        max_memory = max(memory_usage) if memory_usage else 1
+        ax4.text(bar.get_x() + bar.get_width()/2, v + max_memory*0.01, 
                 f'{v:.1f}MB', ha='center', va='bottom', fontsize=10, fontweight='bold')
     
     plt.tight_layout(pad=3.0)
@@ -351,7 +350,7 @@ def create_data_overview_plot(datasets: Dict[str, pd.DataFrame]) -> None:
     
 
 
-def main() -> Dict[str, pd.DataFrame]:
+def main() -> Dict[str, Optional[pd.DataFrame]]:
     """Main execution function for initial dataset assessment"""
     
     
