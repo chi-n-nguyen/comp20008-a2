@@ -5,7 +5,7 @@ from typing import Dict, Optional, List, Any
 import matplotlib.pyplot as plt
 
 # =====================================
-# Research Question: "What factors predict working-from-home adoption, 
+# Research Question: "What factors predict working-from-home (WFH) adoption, 
 # and how do WFH patterns reshape household travel behavior?"
 # Responsible: Nhat Chi Nguyen, 1492182
 # =====================================
