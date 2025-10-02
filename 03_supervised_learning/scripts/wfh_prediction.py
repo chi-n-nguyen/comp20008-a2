@@ -1,7 +1,7 @@
 """
 Work-from-Home (WFH) Prediction using Machine Learning
 ======================================================
-This version uses your actual household travel survey data
+This version uses data from 01_preprocessing folder
 
 Files used:
 - processed_household_master.csv
@@ -43,12 +43,6 @@ def load_and_merge_data():
     
     # Try multiple possible locations for the CSV files
     possible_paths = [
-        '',  # Current directory
-        'outputs/',  # outputs folder in current directory
-        '../outputs/',  # outputs folder in parent directory
-        '../../outputs/',  # outputs folder two levels up
-        '../../01_preprocessing/outputs/',  # preprocessing outputs from scripts folder
-        '../01_preprocessing/outputs/',  # preprocessing outputs from 03_supervised_learning
         '01_preprocessing/outputs/',  # preprocessing outputs from project root
         '../',  # Parent directory
         '../../',  # Two levels up
@@ -63,7 +57,7 @@ def load_and_merge_data():
             break
     
     if data_path is None:
-        print("\n❌ Error: Cannot find CSV files!")
+        print("\n Error: Cannot find CSV files!")
         print("Searched in these locations:")
         for path in possible_paths:
             full_path = os.path.abspath(path)
@@ -80,11 +74,6 @@ def load_and_merge_data():
         journey_df = pd.read_csv(f'{data_path}processed_journey_master.csv')
         morning_df = pd.read_csv(f'{data_path}processed_morning_travel.csv')
         
-        print(f"✓ Household data: {household_df.shape}")
-        print(f"✓ Person data: {person_df.shape}")
-        print(f"✓ Journey data: {journey_df.shape}")
-        print(f"✓ Morning travel data: {morning_df.shape}")
-        
         # Display column names to help with merging
         print("\n" + "="*70)
         print("COLUMN NAMES IN EACH FILE:")
@@ -97,7 +86,7 @@ def load_and_merge_data():
         return household_df, person_df, journey_df, morning_df
         
     except FileNotFoundError as e:
-        print(f"\n❌ Error: Could not find file - {e}")
+        print(f"\n Error: Could not find file - {e}")
         print("\nMake sure you're running the script from the correct directory!")
         print("Current files should be in the same folder as this script.")
         raise
@@ -168,7 +157,7 @@ def create_wfh_target(person_df):
     # Handle missing values in target
     missing_count = person_df['wfh'].isnull().sum()
     if missing_count > 0:
-        print(f"\n⚠️  Warning: {missing_count} missing values in WFH target")
+        print(f"\n Warning: {missing_count} missing values in WFH target")
         print("Dropping rows with missing target values...")
         person_df = person_df.dropna(subset=['wfh'])
     
@@ -212,7 +201,7 @@ def prepare_features(household_df, person_df, journey_df, morning_df):
                 df = df.merge(household_df, on=key_col, how='left', suffixes=('', '_hh'))
                 print(f"✓ Merged household data on '{key_col}'")
         except Exception as e:
-            print(f"⚠️  Could not merge household data: {e}")
+            print(f"Could not merge household data: {e}")
     
     # Aggregate journey-level features (e.g., number of trips per person)
     if person_id_cols and len(person_id_cols) > 0:
@@ -234,7 +223,7 @@ def prepare_features(household_df, person_df, journey_df, morning_df):
                     df['avg_trip_distance'] = df['avg_trip_distance'].fillna(0)
                     print(f"✓ Added average trip distance feature")
         except Exception as e:
-            print(f"⚠️  Could not process journey data: {e}")
+            print(f"Could not process journey data: {e}")
     
     print(f"\nFinal dataset shape: {df.shape}")
     print(f"Total columns: {len(df.columns)}")
@@ -470,7 +459,6 @@ def get_output_directory():
     Always saves to 03_supervised_learning/outputs/
     """
     import os
-    
     # Possible output locations
     possible_outputs = [
         '03_supervised_learning/outputs/',  # From project root
@@ -599,7 +587,6 @@ def plot_feature_importance(model_rf, model_lr, feature_names, top_n=15):
     ax2.set_title(f'Logistic Regression - Top {top_n} Features\n(Green=Positive, Red=Negative)', 
                   fontsize=12, fontweight='bold')
     ax2.invert_yaxis()
-    
     plt.tight_layout()
     
     # Create output directory if it doesn't exist
@@ -609,7 +596,7 @@ def plot_feature_importance(model_rf, model_lr, feature_names, top_n=15):
     
     output_path = os.path.join(output_dir, 'feature_importance.png')
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    print(f"\n✓ Visualization saved to: {output_path}")
+    print(f"\nVisualization saved to: {output_path}")
     plt.show()
 
 # ============================================================================
@@ -678,7 +665,7 @@ def main():
     plot_feature_importance(model_rf, model_lr, X_train.columns)
     
     print("\n" + "=" * 70)
-    print("✓ ANALYSIS COMPLETE!")
+    print("ANALYSIS COMPLETE!")
     print("=" * 70)
 
 if __name__ == "__main__":
