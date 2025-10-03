@@ -1,7 +1,7 @@
 """
 Work-from-Home (WFH) Prediction using Machine Learning
 ======================================================
-This version uses data from 01_preprocessing folder
+This version uses data from 01_proprocessing folder
 
 Files used:
 - processed_household_master.csv
@@ -20,40 +20,34 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.metrics import (
     confusion_matrix, classification_report, accuracy_score,
-    precision_score, recall_score, f1_score, roc_auc_score, roc_curve
+    precision_score, recall_score, f1_score
 )
-import warnings
-warnings.filterwarnings('ignore')
+import os
 
 # Set random seed for reproducibility
 np.random.seed(42)
 
 # ============================================================================
-# 1. LOAD THE PROCESSED DATA
+# 1. LOAD YOUR ACTUAL DATA
 # ============================================================================
 
 def load_and_merge_data():
     """
-    Load and merge the pre_processed data.
+    Load and merge your actual household travel survey data.
+    Adjust file paths and column names as needed.
     """
     print("Loading data files...")
     
-    import os
+    # locations for the CSV files
+    data_path = "01_preprocessing/outputs/"
+    test_file = os.path.join(data_path, "processed_household_master.csv")
     
-    # data locations for the CSV files
-    path = ['01_preprocessing/outputs/']  # preprocessing outputs from project root
-    
-    data_path = None
-    for path in path:
-        test_file = f'{path}processed_household_master.csv'
-        if os.path.exists(test_file):
-            data_path = path
-            print(f"✓ Found data files in: {os.path.abspath(path)}")
-            break
-    
-    if data_path is None:
-        print("\n Error: Cannot find CSV files!")
-        raise FileNotFoundError("CSV files not found. Please check the file paths.")
+    if os.path.exists(test_file):
+        print(f"✓ Found data file: {os.path.abspath(test_file)}")
+    else:
+        raise FileNotFoundError(
+            f"CSV file not found at: {os.path.abspath(test_file)}"
+        )
     
     try:
         # Load all CSV files with the correct path
@@ -62,26 +56,11 @@ def load_and_merge_data():
         journey_df = pd.read_csv(f'{data_path}processed_journey_master.csv')
         morning_df = pd.read_csv(f'{data_path}processed_morning_travel.csv')
         
-        # Display column names to help with merging
-        print("\n" + "="*70)
-        print("COLUMN NAMES IN EACH FILE:")
-        print("="*70)
-        print("\nHousehold columns:", list(household_df.columns))
-        print("\nPerson columns:", list(person_df.columns))
-        print("\nJourney columns:", list(journey_df.columns))
-        print("\nMorning travel columns:", list(morning_df.columns))
-        
         return household_df, person_df, journey_df, morning_df
         
     except FileNotFoundError as e:
         print(f"\n Error: Could not find file - {e}")
-        print("\nMake sure you're running the script from the correct directory!")
-        print("Current files should be in the same folder as this script.")
         raise
-
-# ============================================================================
-# 2. PREPROCESSING (ENCODING / FEATURE AND CANDIDATE SELECTION)
-# ============================================================================
 
 def create_wfh_target(person_df):
     """
@@ -108,7 +87,7 @@ def create_wfh_target(person_df):
         person_df['wfh'] = person_df['anywfh'].copy()
         
         # Convert to binary if needed (handle different encodings)
-        # Common encodings: Yes/No, 1/0, True/False, or actual days
+        # Encodings: Yes/No, 1/0
         if person_df['wfh'].dtype == 'object':
             # String values like 'Yes'/'No'
             person_df['wfh'] = person_df['wfh'].map({
@@ -147,7 +126,7 @@ def create_wfh_target(person_df):
     # Handle missing values in target
     missing_count = person_df['wfh'].isnull().sum()
     if missing_count > 0:
-        print(f"\n Warning: {missing_count} missing values in WFH target")
+        print(f"\n  Warning: {missing_count} missing values in WFH target")
         print("Dropping rows with missing target values...")
         person_df = person_df.dropna(subset=['wfh'])
     
@@ -161,7 +140,8 @@ def create_wfh_target(person_df):
 
 def prepare_features(household_df, person_df, journey_df, morning_df):
     """
-    Merge datasets and decided features for modeling.
+    Merge datasets and create features for modeling.
+    Adjust based on your actual column names and data structure.
     """
     print("\n" + "="*70)
     print("PREPARING FEATURES")
@@ -170,16 +150,9 @@ def prepare_features(household_df, person_df, journey_df, morning_df):
     # Start with person-level data
     df = person_df.copy()
     
-    # Identify common key columns for merging
-    # Common possibilities: 'household_id', 'person_id', 'hhid', 'persid', etc.
-    print("\nAttempting to merge datasets...")
-    
-    # Try to identify ID columns
-    household_id_cols = [col for col in household_df.columns if 'household' in col.lower() or 'hh' in col.lower()]
-    person_id_cols = [col for col in person_df.columns if 'person' in col.lower() or 'pers' in col.lower()]
-    
-    print(f"Potential household ID columns: {household_id_cols}")
-    print(f"Potential person ID columns: {person_id_cols}")
+    # Identify ID columns
+    household_id_cols = ["hhid"]
+    person_id_cols = ["persid"]
     
     # Merge with household data (adjust key names as needed)
     if household_id_cols:
@@ -251,12 +224,41 @@ def select_features(df):
     print(f"  - Numeric features: {len(numeric_features)}")
     print(f"  - Categorical features: {len(categorical_features)}")
     
+    # Handle missing values
+    print("\nHandling missing values...")
+    df_clean = df[feature_cols + [target]].copy()
+    
+    # Fill numeric missing values with median
+    for col in numeric_features:
+        if df_clean[col].isnull().sum() > 0:
+            df_clean[col].fillna(df_clean[col].median(), inplace=True)
+    
+    # Fill categorical missing values with mode
+    for col in categorical_features:
+        if df_clean[col].isnull().sum() > 0:
+            df_clean[col].fillna(df_clean[col].mode()[0] if len(df_clean[col].mode()) > 0 else 'Unknown', inplace=True)
+    
     # Encode categorical variables
     print("\nEncoding categorical variables...")
     label_encoders = {}
     for col in categorical_features:
         le = LabelEncoder()
+        df_clean[col] = le.fit_transform(df_clean[col].astype(str))
         label_encoders[col] = le
+    
+    # Remove any remaining rows with missing target
+    df_clean = df_clean.dropna(subset=[target])
+    
+    print(f"\nFinal dataset shape after cleaning: {df_clean.shape}")
+    print(f"WFH distribution:")
+    print(df_clean[target].value_counts())
+    print(f"WFH percentage: {df_clean[target].mean()*100:.1f}%")
+    
+    return df_clean, label_encoders
+
+# ============================================================================
+# 2. PREPROCESSING
+# ============================================================================
 
 def prepare_train_test_split(df, target_col='wfh', test_size=0.2):
     """
@@ -301,11 +303,9 @@ def train_random_forest(X_train, y_train):
     print("\nHyperparameter Tuning in Progress...")
     
     param_grid_rf = {
-        'n_estimators': [50, 100, 200],
-        'max_depth': [10, 20, 30, None],
-        'min_samples_split': [2, 5, 10],
-        'min_samples_leaf': [1, 2, 4],
-        'max_features': ['sqrt', 'log2']
+        'n_estimators': [50, 100, 200],     # number of trees
+        'max_depth': [10, 20, 30, None],    # maximum dep of each tree
+        'min_samples_split': [2, 5, 10],    # minimum sample to split a node
     }
     
     rf_base = RandomForestClassifier(random_state=42, class_weight='balanced')
@@ -336,8 +336,6 @@ def train_logistic_regression(X_train, y_train):
     param_grid_lr = {
         'C': [0.001, 0.01, 0.1, 1, 10, 100],
         'penalty': ['l1', 'l2'],
-        'solver': ['liblinear', 'saga'],
-        'max_iter': [100, 200, 500, 1000],
         'class_weight': ['balanced', None]
     }
     
@@ -379,8 +377,7 @@ def evaluate_model(model, X_test, y_test, model_name):
     precision = precision_score(y_test, y_pred, zero_division=0)
     recall = recall_score(y_test, y_pred, zero_division=0)
     f1 = f1_score(y_test, y_pred, zero_division=0)
-    roc_auc = roc_auc_score(y_test, y_pred_proba)
-    
+   
     print("\n1. CONFUSION MATRIX:")
     print(cm)
     print(f"\n   True Negatives:  {cm[0,0]}")
@@ -393,7 +390,7 @@ def evaluate_model(model, X_test, y_test, model_name):
     print(f"   Precision: {precision:.4f}")
     print(f"   Recall:    {recall:.4f}")
     print(f"   F1-Score:  {f1:.4f}")
-    print(f"   ROC-AUC:   {roc_auc:.4f}")
+
     
     print("\n3. DETAILED CLASSIFICATION REPORT:")
     print(classification_report(y_test, y_pred, target_names=['Non-WFH', 'WFH'], zero_division=0))
@@ -404,7 +401,7 @@ def evaluate_model(model, X_test, y_test, model_name):
         'precision': precision,
         'recall': recall,
         'f1_score': f1,
-        'roc_auc': roc_auc,
+       
         'y_pred': y_pred,
         'y_pred_proba': y_pred_proba
     }
@@ -418,7 +415,7 @@ def get_output_directory():
     Determine the correct output directory based on where script is run from.
     Always saves to 03_supervised_learning/outputs/
     """
-    import os
+    
     # Possible output locations
     possible_outputs = [
         '03_supervised_learning/outputs/',  # From project root
@@ -463,11 +460,11 @@ def plot_results(results_rf, results_lr, y_test):
     
     # Metrics Comparison
     ax3 = plt.subplot(2, 3, 3)
-    metrics = ['Accuracy', 'Precision', 'Recall', 'F1-Score', 'ROC-AUC']
+    metrics = ['Accuracy', 'Precision', 'Recall', 'F1-Score']
     rf_scores = [results_rf['accuracy'], results_rf['precision'], 
-                 results_rf['recall'], results_rf['f1_score'], results_rf['roc_auc']]
+                 results_rf['recall'], results_rf['f1_score']]
     lr_scores = [results_lr['accuracy'], results_lr['precision'], 
-                 results_lr['recall'], results_lr['f1_score'], results_lr['roc_auc']]
+                 results_lr['recall'], results_lr['f1_score']]
     
     x = np.arange(len(metrics))
     width = 0.35
@@ -481,22 +478,6 @@ def plot_results(results_rf, results_lr, y_test):
     ax3.set_ylim([0, 1])
     ax3.grid(axis='y', alpha=0.3)
     
-    # ROC Curves
-    ax4 = plt.subplot(2, 3, 4)
-    fpr_rf, tpr_rf, _ = roc_curve(y_test, results_rf['y_pred_proba'])
-    fpr_lr, tpr_lr, _ = roc_curve(y_test, results_lr['y_pred_proba'])
-    
-    ax4.plot(fpr_rf, tpr_rf, label=f"Random Forest (AUC={results_rf['roc_auc']:.3f})", 
-             color='steelblue', linewidth=2)
-    ax4.plot(fpr_lr, tpr_lr, label=f"Logistic Regression (AUC={results_lr['roc_auc']:.3f})", 
-             color='seagreen', linewidth=2)
-    ax4.plot([0, 1], [0, 1], 'k--', label='Random Classifier')
-    ax4.set_xlabel('False Positive Rate')
-    ax4.set_ylabel('True Positive Rate')
-    ax4.set_title('ROC Curves Comparison', fontsize=12, fontweight='bold')
-    ax4.legend()
-    ax4.grid(alpha=0.3)
-    
     # Prediction Distribution
     ax5 = plt.subplot(2, 3, 5)
     ax5.hist(results_rf['y_pred_proba'], bins=30, alpha=0.6, label='Random Forest', color='steelblue')
@@ -506,17 +487,11 @@ def plot_results(results_rf, results_lr, y_test):
     ax5.set_title('Prediction Probability Distribution', fontsize=12, fontweight='bold')
     ax5.legend()
     ax5.grid(alpha=0.3)
-    
+
     plt.tight_layout()
     
-    # Create output directory if it doesn't exist
-    import os
-    output_dir = get_output_directory()
-    os.makedirs(output_dir, exist_ok=True)
-    
-    output_path = os.path.join(output_dir, 'wfh_prediction_results.png')
+    output_path = os.path.join("03_supervised_learning", "outputs", "wfh_prediction_results.png")
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    print(f"\n✓ Visualization saved to: {output_path}")
     plt.show()
 
 def plot_feature_importance(model_rf, model_lr, feature_names, top_n=15):
@@ -547,16 +522,9 @@ def plot_feature_importance(model_rf, model_lr, feature_names, top_n=15):
     ax2.set_title(f'Logistic Regression - Top {top_n} Features\n(Green=Positive, Red=Negative)', 
                   fontsize=12, fontweight='bold')
     ax2.invert_yaxis()
-    plt.tight_layout()
-    
-    # Create output directory if it doesn't exist
-    import os
-    output_dir = get_output_directory()
-    os.makedirs(output_dir, exist_ok=True)
-    
-    output_path = os.path.join(output_dir, 'feature_importance.png')
+
+    output_path = os.path.join("03_supervised_learning", "outputs", "feature_importance.png")
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    print(f"\nVisualization saved to: {output_path}")
     plt.show()
 
 # ============================================================================
@@ -603,14 +571,14 @@ def main():
     print("=" * 70)
     
     comparison_df = pd.DataFrame({
-        'Metric': ['Accuracy', 'Precision', 'Recall', 'F1-Score', 'ROC-AUC'],
+        'Metric': ['Accuracy', 'Precision', 'Recall', 'F1-Score'],
         'Random Forest': [
             results_rf['accuracy'], results_rf['precision'],
-            results_rf['recall'], results_rf['f1_score'], results_rf['roc_auc']
+            results_rf['recall'], results_rf['f1_score']
         ],
         'Logistic Regression': [
             results_lr['accuracy'], results_lr['precision'],
-            results_lr['recall'], results_lr['f1_score'], results_lr['roc_auc']
+            results_lr['recall'], results_lr['f1_score']
         ]
     })
     
@@ -625,7 +593,7 @@ def main():
     plot_feature_importance(model_rf, model_lr, X_train.columns)
     
     print("\n" + "=" * 70)
-    print("ANALYSIS COMPLETE!")
+    print("✓ ANALYSIS COMPLETE!")
     print("=" * 70)
 
 if __name__ == "__main__":
