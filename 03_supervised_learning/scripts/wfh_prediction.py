@@ -29,27 +29,22 @@ warnings.filterwarnings('ignore')
 np.random.seed(42)
 
 # ============================================================================
-# 1. LOAD YOUR ACTUAL DATA
+# 1. LOAD THE PROCESSED DATA
 # ============================================================================
 
 def load_and_merge_data():
     """
-    Load and merge your actual household travel survey data.
-    Adjust file paths and column names as needed.
+    Load and merge the pre_processed data.
     """
     print("Loading data files...")
     
     import os
     
-    # Try multiple possible locations for the CSV files
-    possible_paths = [
-        '01_preprocessing/outputs/',  # preprocessing outputs from project root
-        '../',  # Parent directory
-        '../../',  # Two levels up
-    ]
+    # data locations for the CSV files
+    path = ['01_preprocessing/outputs/']  # preprocessing outputs from project root
     
     data_path = None
-    for path in possible_paths:
+    for path in path:
         test_file = f'{path}processed_household_master.csv'
         if os.path.exists(test_file):
             data_path = path
@@ -58,13 +53,6 @@ def load_and_merge_data():
     
     if data_path is None:
         print("\n Error: Cannot find CSV files!")
-        print("Searched in these locations:")
-        for path in possible_paths:
-            full_path = os.path.abspath(path)
-            print(f"  - {full_path}")
-        print("\nBased on your folder structure, CSV files should be in:")
-        print("  01_preprocessing/outputs/")
-        print("\nCurrent working directory:", os.getcwd())
         raise FileNotFoundError("CSV files not found. Please check the file paths.")
     
     try:
@@ -91,11 +79,15 @@ def load_and_merge_data():
         print("Current files should be in the same folder as this script.")
         raise
 
+# ============================================================================
+# 2. PREPROCESSING (ENCODING / FEATURE AND CANDIDATE SELECTION)
+# ============================================================================
+
 def create_wfh_target(person_df):
     """
     Create the work-from-home target variable using actual WFH columns.
     
-    Available WFH columns in your data:
+    Available WFH columns in data:
     - anywfh: Any work from home (likely binary indicator)
     - wfhmon, wfhtue, wfhwed, wfhthu, wfhfri, wfhsat, wfhsun: Day-specific WFH
     - wfhtravday: WFH on travel day
@@ -120,9 +112,7 @@ def create_wfh_target(person_df):
         if person_df['wfh'].dtype == 'object':
             # String values like 'Yes'/'No'
             person_df['wfh'] = person_df['wfh'].map({
-                'Yes': 1, 'yes': 1, 'Y': 1, 'y': 1, 'YES': 1,
-                'No': 0, 'no': 0, 'N': 0, 'n': 0, 'NO': 0,
-                True: 1, False: 0, '1': 1, '0': 0
+                'Yes': 1, 'No': 0, '1': 1, '0': 0
             })
         
         # Ensure binary (0 or 1)
@@ -135,7 +125,7 @@ def create_wfh_target(person_df):
         person_df['wfh'] = person_df['wfhtravday'].copy()
         if person_df['wfh'].dtype == 'object':
             person_df['wfh'] = person_df['wfh'].map({
-                'Yes': 1, 'yes': 1, 'Y': 1, 'No': 0, 'no': 0, 'N': 0
+                'Yes': 1, 'No': 0, '1': 1, '0': 0
             })
         person_df['wfh'] = (person_df['wfh'] > 0).astype(int)
         print(f"\n✓ Using 'wfhtravday' as target variable")
@@ -171,8 +161,7 @@ def create_wfh_target(person_df):
 
 def prepare_features(household_df, person_df, journey_df, morning_df):
     """
-    Merge datasets and create features for modeling.
-    Adjust based on your actual column names and data structure.
+    Merge datasets and decided features for modeling.
     """
     print("\n" + "="*70)
     print("PREPARING FEATURES")
@@ -262,41 +251,12 @@ def select_features(df):
     print(f"  - Numeric features: {len(numeric_features)}")
     print(f"  - Categorical features: {len(categorical_features)}")
     
-    # Handle missing values
-    print("\nHandling missing values...")
-    df_clean = df[feature_cols + [target]].copy()
-    
-    # Fill numeric missing values with median
-    for col in numeric_features:
-        if df_clean[col].isnull().sum() > 0:
-            df_clean[col].fillna(df_clean[col].median(), inplace=True)
-    
-    # Fill categorical missing values with mode
-    for col in categorical_features:
-        if df_clean[col].isnull().sum() > 0:
-            df_clean[col].fillna(df_clean[col].mode()[0] if len(df_clean[col].mode()) > 0 else 'Unknown', inplace=True)
-    
     # Encode categorical variables
     print("\nEncoding categorical variables...")
     label_encoders = {}
     for col in categorical_features:
         le = LabelEncoder()
-        df_clean[col] = le.fit_transform(df_clean[col].astype(str))
         label_encoders[col] = le
-    
-    # Remove any remaining rows with missing target
-    df_clean = df_clean.dropna(subset=[target])
-    
-    print(f"\nFinal dataset shape after cleaning: {df_clean.shape}")
-    print(f"WFH distribution:")
-    print(df_clean[target].value_counts())
-    print(f"WFH percentage: {df_clean[target].mean()*100:.1f}%")
-    
-    return df_clean, label_encoders
-
-# ============================================================================
-# 2. PREPROCESSING
-# ============================================================================
 
 def prepare_train_test_split(df, target_col='wfh', test_size=0.2):
     """
