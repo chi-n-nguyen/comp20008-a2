@@ -43,7 +43,7 @@ def load_and_merge_data():
     test_file = os.path.join(data_path, "processed_household_master.csv")
     
     if os.path.exists(test_file):
-        print(f"✓ Found data file: {os.path.abspath(test_file)}")
+        print(f"Found data file: {os.path.abspath(test_file)}")
     else:
         raise FileNotFoundError(
             f"CSV file not found at: {os.path.abspath(test_file)}"
@@ -97,7 +97,7 @@ def create_wfh_target(person_df):
         # Ensure binary (0 or 1)
         person_df['wfh'] = (person_df['wfh'] > 0).astype(int)
         
-        print(f"\n✓ Using 'anywfh' as target variable")
+        print(f"\nUsing 'anywfh' as target variable")
         
     elif 'wfhtravday' in person_df.columns:
         # Alternative: Use WFH on travel day
@@ -107,7 +107,7 @@ def create_wfh_target(person_df):
                 'Yes': 1, 'No': 0, '1': 1, '0': 0
             })
         person_df['wfh'] = (person_df['wfh'] > 0).astype(int)
-        print(f"\n✓ Using 'wfhtravday' as target variable")
+        print(f"\nUsing 'wfhtravday' as target variable")
         
     else:
         # Fallback: Create target from any weekday WFH
@@ -119,7 +119,7 @@ def create_wfh_target(person_df):
             person_df['wfh'] = person_df[weekday_cols].apply(
                 lambda row: int(any(x > 0 for x in row if pd.notna(x))), axis=1
             )
-            print(f"\n✓ Created target from weekday WFH columns: {weekday_cols}")
+            print(f"\nCreated target from weekday WFH columns: {weekday_cols}")
         else:
             raise ValueError("No WFH columns found in dataset!")
     
@@ -161,7 +161,7 @@ def prepare_features(household_df, person_df, journey_df, morning_df):
             key_col = household_id_cols[0]
             if key_col in df.columns and key_col in household_df.columns:
                 df = df.merge(household_df, on=key_col, how='left', suffixes=('', '_hh'))
-                print(f"✓ Merged household data on '{key_col}'")
+                print(f"Merged household data on '{key_col}'")
         except Exception as e:
             print(f"Could not merge household data: {e}")
     
@@ -174,7 +174,7 @@ def prepare_features(household_df, person_df, journey_df, morning_df):
                 trip_counts = journey_df.groupby(person_key).size().reset_index(name='num_trips')
                 df = df.merge(trip_counts, on=person_key, how='left')
                 df['num_trips'] = df['num_trips'].fillna(0)
-                print(f"✓ Added trip count feature")
+                print(f"Added trip count feature")
                 
                 # Add average trip distance if available
                 distance_cols = [col for col in journey_df.columns if 'distance' in col.lower()]
@@ -183,7 +183,7 @@ def prepare_features(household_df, person_df, journey_df, morning_df):
                     avg_distance.columns = [person_key, 'avg_trip_distance']
                     df = df.merge(avg_distance, on=person_key, how='left')
                     df['avg_trip_distance'] = df['avg_trip_distance'].fillna(0)
-                    print(f"✓ Added average trip distance feature")
+                    print(f"Added average trip distance feature")
         except Exception as e:
             print(f"Could not process journey data: {e}")
     
@@ -593,7 +593,7 @@ def main():
     plot_feature_importance(model_rf, model_lr, X_train.columns)
     
     print("\n" + "=" * 70)
-    print("✓ ANALYSIS COMPLETE!")
+    print("ANALYSIS COMPLETE!")
     print("=" * 70)
 
 if __name__ == "__main__":

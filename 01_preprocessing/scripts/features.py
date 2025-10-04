@@ -12,17 +12,34 @@ import config
 def create_wfh_features(df: pd.DataFrame) -> pd.DataFrame:
     df_features = df.copy()
     existing_weekdays = [c for c in config.WFH_WEEKDAYS if c in df_features.columns]
+    existing_weekends = [c for c in config.WFH_WEEKENDS if c in df_features.columns]
+    existing_all_days = [c for c in config.WFH_ALL_DAYS if c in df_features.columns]
 
-    for col in existing_weekdays:
+    # Process all WFH day columns
+    for col in existing_all_days:
         df_features[col] = df_features[col].map(config.WFH_MAPPING)
         df_features[col] = pd.to_numeric(df_features[col], errors='coerce').fillna(0)
 
+    # Calculate different intensity metrics
     if existing_weekdays:
-        df_features['wfh_intensity'] = df_features[existing_weekdays].sum(axis=1)
+        df_features['wfh_intensity_weekdays'] = df_features[existing_weekdays].sum(axis=1)
     else:
-        df_features['wfh_intensity'] = 0
+        df_features['wfh_intensity_weekdays'] = 0
+    
+    if existing_weekends:
+        df_features['wfh_intensity_weekends'] = df_features[existing_weekends].sum(axis=1)
+    else:
+        df_features['wfh_intensity_weekends'] = 0
+    
+    if existing_all_days:
+        df_features['wfh_intensity_total'] = df_features[existing_all_days].sum(axis=1)
+    else:
+        df_features['wfh_intensity_total'] = 0
+    
+    # Keep original wfh_intensity as weekdays for backward compatibility
+    df_features['wfh_intensity'] = df_features['wfh_intensity_weekdays']
 
-    df_features['wfh_adopter'] = (df_features['wfh_intensity'] > 0).astype(int)
+    df_features['wfh_adopter'] = (df_features['wfh_intensity_total'] > 0).astype(int)
 
     def categorize_wfh(score: float) -> str:
         if score == 0:
@@ -33,7 +50,8 @@ def create_wfh_features(df: pd.DataFrame) -> pd.DataFrame:
             return 'Frequent_WFH'
         return 'Full_WFH'
 
-    df_features['wfh_category'] = df_features['wfh_intensity'].apply(categorize_wfh)
+    # Use total intensity for categorization (including weekends)
+    df_features['wfh_category'] = df_features['wfh_intensity_total'].apply(categorize_wfh)
 
     if 'anywork' in df_features.columns:
         df_features['is_worker'] = (df_features['anywork'] == 'Yes').astype(int)

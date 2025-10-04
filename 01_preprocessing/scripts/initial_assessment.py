@@ -55,7 +55,7 @@ def load_vista_datasets() -> Dict[str, Optional[pd.DataFrame]]:
                 df = pd.read_csv(path, low_memory=False)
             datasets[name] = df
             memory_mb = df.memory_usage(deep=True).sum() / (1024**2)
-            print(f"LOADED: {df.shape[0]:,} rows × {df.shape[1]} cols ({memory_mb:.1f} MB)")
+            print(f"LOADED: {df.shape[0]:,} rows x {df.shape[1]} cols ({memory_mb:.1f} MB)")
             
         except FileNotFoundError:
             print(f"FILE NOT FOUND: {path}")
@@ -148,7 +148,7 @@ def analyze_dataset_relationships(datasets: Dict[str, pd.DataFrame]) -> None:
     # trips_df = datasets.get('trips')  # Not used in this function
     
     if household_df is not None and person_df is not None:
-        print("\nHOUSEHOLD ↔ PERSON Linkage:")
+        print("\nHOUSEHOLD <-> PERSON Linkage:")
         print("-" * 30)
         
         # Check hhid overlap
@@ -164,7 +164,7 @@ def analyze_dataset_relationships(datasets: Dict[str, pd.DataFrame]) -> None:
             print(f"Match rate: {overlap/len(hh_ids)*100:.1f}%")
     
     if person_df is not None and work_journeys_df is not None:
-        print("\nPERSON ↔ WORK JOURNEYS Linkage:")
+        print("\nPERSON <-> WORK JOURNEYS Linkage:")
         print("-" * 30)
         
         # Check person ID overlap for work analysis
