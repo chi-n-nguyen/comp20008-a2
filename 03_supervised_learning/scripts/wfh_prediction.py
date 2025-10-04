@@ -20,7 +20,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.metrics import (
     confusion_matrix, classification_report, accuracy_score,
-    precision_score, recall_score, f1_score
+    precision_score, recall_score, f1_score, roc_auc_score, roc_curve
 )
 import os
 
@@ -377,6 +377,7 @@ def evaluate_model(model, X_test, y_test, model_name):
     precision = precision_score(y_test, y_pred, zero_division=0)
     recall = recall_score(y_test, y_pred, zero_division=0)
     f1 = f1_score(y_test, y_pred, zero_division=0)
+    roc_auc = roc_auc_score(y_test, y_pred_proba)
    
     print("\n1. CONFUSION MATRIX:")
     print(cm)
@@ -390,7 +391,7 @@ def evaluate_model(model, X_test, y_test, model_name):
     print(f"   Precision: {precision:.4f}")
     print(f"   Recall:    {recall:.4f}")
     print(f"   F1-Score:  {f1:.4f}")
-
+    print(f"   ROC-AUC:   {roc_auc:.4f}")
     
     print("\n3. DETAILED CLASSIFICATION REPORT:")
     print(classification_report(y_test, y_pred, target_names=['Non-WFH', 'WFH'], zero_division=0))
@@ -401,7 +402,7 @@ def evaluate_model(model, X_test, y_test, model_name):
         'precision': precision,
         'recall': recall,
         'f1_score': f1,
-       
+        'roc_auc': roc_auc,
         'y_pred': y_pred,
         'y_pred_proba': y_pred_proba
     }
@@ -571,16 +572,20 @@ def main():
     print("=" * 70)
     
     comparison_df = pd.DataFrame({
-        'Metric': ['Accuracy', 'Precision', 'Recall', 'F1-Score'],
+        'Metric': ['Accuracy', 'Precision', 'Recall', 'F1-Score', 'ROC-AUC'],
         'Random Forest': [
             results_rf['accuracy'], results_rf['precision'],
-            results_rf['recall'], results_rf['f1_score']
+            results_rf['recall'], results_rf['f1_score'], results_rf['roc_auc']
         ],
         'Logistic Regression': [
             results_lr['accuracy'], results_lr['precision'],
-            results_lr['recall'], results_lr['f1_score']
+            results_lr['recall'], results_lr['f1_score'], results_lr['roc_auc']
         ]
     })
+    
+    comparison_df['Difference'] = comparison_df['Logistic Regression'] - comparison_df['Random Forest']
+    print("\n", comparison_df.to_string(index=False))
+    
     
     comparison_df['Difference'] = comparison_df['Logistic Regression'] - comparison_df['Random Forest']
     print("\n", comparison_df.to_string(index=False))
