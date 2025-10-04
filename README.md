@@ -8,7 +8,7 @@
 
 | Name | Role | Student ID | GitHub Username |
 |------|------|------------|-----------------|
-| Nhat Chi Nguyen | Data Integration | 1492182 | chi-n-nguyen |
+| Nhat Chi Nguyen | Team Lead + Data Integration | 1492182 | chi-n-nguyen |
 | Wanhui Li | Supervised Learning Models | 1450755 | Waiola77 |
 | Chang Lu | Correlation Analysis | 1551448 | 9uchang |
 | Jingxuan Bai | Clustering & Visualization | 1566889 | BBrianUU |
