@@ -23,7 +23,9 @@ FILENAMES: Dict[str, str] = {
 
 # Column groups
 WFH_WEEKDAYS: List[str] = ['wfhmon', 'wfhtue', 'wfhwed', 'wfhthu', 'wfhfri']
-WFH_ALL: List[str] = WFH_WEEKDAYS + ['wfhsat', 'wfhsun', 'wfhtravday', 'anywfh']
+WFH_WEEKENDS: List[str] = ['wfhsat', 'wfhsun']
+WFH_ALL_DAYS: List[str] = WFH_WEEKDAYS + WFH_WEEKENDS
+WFH_ALL: List[str] = WFH_ALL_DAYS + ['wfhtravday', 'anywfh']
 PERSON_WEIGHT = 'perspoststratweight'
 JOURNEY_WEIGHT = 'journey_weight'
 

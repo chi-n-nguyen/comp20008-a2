@@ -40,8 +40,15 @@ def create_person_level_dataset(persons_df: pd.DataFrame, households_df: pd.Data
         hh_cols.append('hhpoststratweight')
     hh_cols = [c for c in hh_cols if c in households_df.columns]
     person_analysis = persons_df.merge(households_df[hh_cols], on='hhid', how='left')
+    
+    # Apply worker filter with explicit reporting
     if 'is_worker' in person_analysis.columns:
+        print(f"\nFiltering to workers only:")
+        print(f"  Before filter: {len(person_analysis):,} records")
         person_analysis = person_analysis[person_analysis['is_worker'] == 1].copy()
+        print(f"  After filter: {len(person_analysis):,} records")
+        print(f"  Non-workers excluded: {len(persons_df) - len(person_analysis):,} records")
+    
     person_analysis['analysis_weight'] = person_analysis['perspoststratweight']
     return person_analysis
 

@@ -86,7 +86,14 @@ def main() -> None:
     else:
         journey_master = pd.DataFrame()
 
-    # Missing values
+    # Missing values and data quality report
+    print(f"\n{'='*70}")
+    print("DATA QUALITY REPORT")
+    print("="*70)
+    print(f"Raw persons dataset: {len(persons_df):,} records")
+    print(f"After worker filtering: {len(person_master):,} records")
+    print(f"Records dropped: {len(persons_df) - len(person_master):,} ({((len(persons_df) - len(person_master))/len(persons_df)*100):.1f}%)")
+    
     person_master_clean = handle_missing_values(person_master, "Person Master")
     household_master_clean = handle_missing_values(hh_master, "Household Master")
     journey_master_clean = handle_missing_values(journey_master, "Journey Master")
@@ -160,7 +167,15 @@ def main() -> None:
     print(f"Person master: {len(person_master_clean)} rows")
     print(f"Household master: {len(household_master_clean)} rows")
     print(f"Journey master: {len(journey_master_clean)} rows")
+    print(f"Data retention rate: {(len(person_master_clean)/len(persons_df)*100):.1f}%")
     print(f"All files saved to: {config.OUTPUT_DIR}/")
+    
+    # WFH validation report
+    if len(person_master_clean) > 0:
+        wfh_summary = person_master_clean.groupby(['anywfh', 'wfh_adopter']).size().reset_index(name='count')
+        print(f"\nWFH Validation Summary:")
+        for _, row in wfh_summary.iterrows():
+            print(f"  anywfh={row['anywfh']}, wfh_adopter={row['wfh_adopter']}: {row['count']} records")
 
 
 if __name__ == "__main__":

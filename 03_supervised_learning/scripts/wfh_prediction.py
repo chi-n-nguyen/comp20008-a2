@@ -20,7 +20,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.metrics import (
     confusion_matrix, classification_report, accuracy_score,
-    precision_score, recall_score, f1_score
+    precision_score, recall_score, f1_score, roc_auc_score, roc_curve
 )
 import os
 
@@ -43,7 +43,7 @@ def load_and_merge_data():
     test_file = os.path.join(data_path, "processed_household_master.csv")
     
     if os.path.exists(test_file):
-        print(f"✓ Found data file: {os.path.abspath(test_file)}")
+        print(f"Found data file: {os.path.abspath(test_file)}")
     else:
         raise FileNotFoundError(
             f"CSV file not found at: {os.path.abspath(test_file)}"
@@ -97,7 +97,7 @@ def create_wfh_target(person_df):
         # Ensure binary (0 or 1)
         person_df['wfh'] = (person_df['wfh'] > 0).astype(int)
         
-        print(f"\n✓ Using 'anywfh' as target variable")
+        print(f"\nUsing 'anywfh' as target variable")
         
     elif 'wfhtravday' in person_df.columns:
         # Alternative: Use WFH on travel day
@@ -107,7 +107,7 @@ def create_wfh_target(person_df):
                 'Yes': 1, 'No': 0, '1': 1, '0': 0
             })
         person_df['wfh'] = (person_df['wfh'] > 0).astype(int)
-        print(f"\n✓ Using 'wfhtravday' as target variable")
+        print(f"\nUsing 'wfhtravday' as target variable")
         
     else:
         # Fallback: Create target from any weekday WFH
@@ -119,7 +119,7 @@ def create_wfh_target(person_df):
             person_df['wfh'] = person_df[weekday_cols].apply(
                 lambda row: int(any(x > 0 for x in row if pd.notna(x))), axis=1
             )
-            print(f"\n✓ Created target from weekday WFH columns: {weekday_cols}")
+            print(f"\nCreated target from weekday WFH columns: {weekday_cols}")
         else:
             raise ValueError("No WFH columns found in dataset!")
     
@@ -161,7 +161,7 @@ def prepare_features(household_df, person_df, journey_df, morning_df):
             key_col = household_id_cols[0]
             if key_col in df.columns and key_col in household_df.columns:
                 df = df.merge(household_df, on=key_col, how='left', suffixes=('', '_hh'))
-                print(f"✓ Merged household data on '{key_col}'")
+                print(f"Merged household data on '{key_col}'")
         except Exception as e:
             print(f"Could not merge household data: {e}")
     
@@ -174,7 +174,7 @@ def prepare_features(household_df, person_df, journey_df, morning_df):
                 trip_counts = journey_df.groupby(person_key).size().reset_index(name='num_trips')
                 df = df.merge(trip_counts, on=person_key, how='left')
                 df['num_trips'] = df['num_trips'].fillna(0)
-                print(f"✓ Added trip count feature")
+                print(f"Added trip count feature")
                 
                 # Add average trip distance if available
                 distance_cols = [col for col in journey_df.columns if 'distance' in col.lower()]
@@ -183,7 +183,7 @@ def prepare_features(household_df, person_df, journey_df, morning_df):
                     avg_distance.columns = [person_key, 'avg_trip_distance']
                     df = df.merge(avg_distance, on=person_key, how='left')
                     df['avg_trip_distance'] = df['avg_trip_distance'].fillna(0)
-                    print(f"✓ Added average trip distance feature")
+                    print(f"Added average trip distance feature")
         except Exception as e:
             print(f"Could not process journey data: {e}")
     
@@ -377,6 +377,7 @@ def evaluate_model(model, X_test, y_test, model_name):
     precision = precision_score(y_test, y_pred, zero_division=0)
     recall = recall_score(y_test, y_pred, zero_division=0)
     f1 = f1_score(y_test, y_pred, zero_division=0)
+    roc_auc = roc_auc_score(y_test, y_pred_proba)
    
     print("\n1. CONFUSION MATRIX:")
     print(cm)
@@ -390,7 +391,7 @@ def evaluate_model(model, X_test, y_test, model_name):
     print(f"   Precision: {precision:.4f}")
     print(f"   Recall:    {recall:.4f}")
     print(f"   F1-Score:  {f1:.4f}")
-
+    print(f"   ROC-AUC:   {roc_auc:.4f}")
     
     print("\n3. DETAILED CLASSIFICATION REPORT:")
     print(classification_report(y_test, y_pred, target_names=['Non-WFH', 'WFH'], zero_division=0))
@@ -401,7 +402,7 @@ def evaluate_model(model, X_test, y_test, model_name):
         'precision': precision,
         'recall': recall,
         'f1_score': f1,
-       
+        'roc_auc': roc_auc,
         'y_pred': y_pred,
         'y_pred_proba': y_pred_proba
     }
@@ -571,16 +572,20 @@ def main():
     print("=" * 70)
     
     comparison_df = pd.DataFrame({
-        'Metric': ['Accuracy', 'Precision', 'Recall', 'F1-Score'],
+        'Metric': ['Accuracy', 'Precision', 'Recall', 'F1-Score', 'ROC-AUC'],
         'Random Forest': [
             results_rf['accuracy'], results_rf['precision'],
-            results_rf['recall'], results_rf['f1_score']
+            results_rf['recall'], results_rf['f1_score'], results_rf['roc_auc']
         ],
         'Logistic Regression': [
             results_lr['accuracy'], results_lr['precision'],
-            results_lr['recall'], results_lr['f1_score']
+            results_lr['recall'], results_lr['f1_score'], results_lr['roc_auc']
         ]
     })
+    
+    comparison_df['Difference'] = comparison_df['Logistic Regression'] - comparison_df['Random Forest']
+    print("\n", comparison_df.to_string(index=False))
+    
     
     comparison_df['Difference'] = comparison_df['Logistic Regression'] - comparison_df['Random Forest']
     print("\n", comparison_df.to_string(index=False))
@@ -593,7 +598,7 @@ def main():
     plot_feature_importance(model_rf, model_lr, X_train.columns)
     
     print("\n" + "=" * 70)
-    print("✓ ANALYSIS COMPLETE!")
+    print("ANALYSIS COMPLETE!")
     print("=" * 70)
 
 if __name__ == "__main__":
