@@ -1,8 +1,8 @@
-# Working From Home and Household Travel Behavior Analysis
+# Working From Home Adoption Analysis
 
 ## **Research Question**
 
-**"What factors predict working-from-home (WFH) adoption, and how do WFH patterns reshape household travel behavior?"**
+**"What factors predict working-from-home (WFH) adoption?"**
 
 ## **Team Members**
 
@@ -15,7 +15,7 @@
 
 ## **Project Overview**
 
-This project analyzes VISTA 2023-2024 travel survey data to understand the factors that influence working-from-home (WFH) adoption and how these patterns affect household travel behavior in Melbourne. The analysis combines multiple statistical and machine learning approaches to provide comprehensive insights into post-pandemic work and travel patterns.
+This project analyzes VISTA 2023-2024 travel survey data to understand the factors that influence working-from-home (WFH) adoption in Melbourne. The analysis combines statistical correlation analysis, machine learning models, and household clustering to identify key predictors of remote work adoption.
 
 ## **Project Structure**
 

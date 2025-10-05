@@ -1,10 +1,10 @@
 # Clustering Analysis
 
-This directory contains unsupervised learning analysis for identifying household WFH and travel behavior patterns.
+This directory contains unsupervised learning analysis for identifying household WFH adoption patterns.
 
 ## Overview
 
-The clustering analysis addresses the research question by segmenting households based on WFH adoption patterns and travel characteristics to identify distinct behavioral profiles that reshape household travel behavior.
+The clustering analysis addresses the research question by segmenting households based on WFH adoption patterns to identify distinct household profiles and key factors that predict WFH adoption.
 
 ## Directory Structure
 
@@ -166,6 +166,6 @@ The clustering analysis identifies household segments that represent different r
 The clustering results support the research question by:
 
 1. **Identifying WFH Predictors**: Cluster profiles reveal household characteristics that predict WFH adoption
-2. **Quantifying Travel Behavior Changes**: Different clusters show distinct travel pattern adaptations
-3. **Geographic Insights**: Spatial distribution reveals how location influences WFH-travel relationships
-4. **Policy Relevance**: Actionable insights for transportation and urban planning decisions
+2. **Household Pattern Recognition**: Different clusters show distinct household composition and work arrangements
+3. **Geographic Insights**: Spatial distribution reveals how location influences WFH adoption patterns
+4. **Policy Relevance**: Actionable insights for supporting remote work adoption

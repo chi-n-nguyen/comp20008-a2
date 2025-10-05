@@ -1,4 +1,3 @@
-" "
 import pandas as pd
 import numpy as np
 from scipy import stats
@@ -7,6 +6,9 @@ import seaborn as sns
 from pathlib import Path
 from sklearn.metrics import normalized_mutual_info_score
 import math
+import sys
+sys.path.append('../../01_preprocessing/scripts')
+from variable_mapping import create_readable_columns
 
 # This section investigates the statistical relationship between occupation type 
 # (a demographic characteristic) and WFH adoption (i.e., whether individuals work 
@@ -17,16 +19,20 @@ import math
 output_dir = Path("../outputs")
 output_dir.mkdir(exist_ok=True)
 
-# Load the dataset and keep only valid samples (respondents who answered "Yes" or "No" to WFH adoption)
+# Load the dataset and apply readable column names
 data_path = "../../01_preprocessing/outputs/processed_person_master.csv"
 df = pd.read_csv(data_path)
-valid_df = df[df["anywfh"].isin(["Yes", "No"])]
+df = create_readable_columns(df)
+print("Applied readable column names for analysis")
+
+# Keep only valid samples (respondents who answered "Yes" or "No" to WFH adoption)
+valid_df = df[df["works_from_home_any"].isin(["Yes", "No"])]
 
 
-# Weighted contingency table: occupation (anzsco1) vs WFH status (anywfh) using post-stratification weights
+# Weighted contingency table: occupation (occupation_major_group) vs WFH status (works_from_home_any) using survey weights
 weighted_adoption = pd.crosstab(
-    valid_df["anzsco1"], valid_df["anywfh"], 
-    values=valid_df["perspoststratweight"], aggfunc="sum"
+    valid_df["occupation_major_group"], valid_df["works_from_home_any"], 
+    values=valid_df["person_survey_weight"], aggfunc="sum"
 ).fillna(0)
 
 # Normalize the weighted contingency table to get probabilities summing to 1

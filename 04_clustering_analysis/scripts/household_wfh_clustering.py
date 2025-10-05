@@ -20,7 +20,7 @@ print("Household data shape:", household_df.shape)
 print("Available columns:", household_df.columns.tolist())
 
 # Define clustering features based on research question
-# Focus on WFH patterns and household travel behavior
+# Focus on WFH adoption patterns
 clustering_features = [
     'hhsize',           # Household size
     'totalvehs',        # Number of vehicles

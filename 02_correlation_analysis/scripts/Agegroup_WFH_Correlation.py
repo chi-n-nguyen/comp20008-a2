@@ -4,28 +4,33 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 import math
+import sys
+sys.path.append('../../01_preprocessing/scripts')
+from variable_mapping import create_readable_columns
 
 # Create folder for saving outputs
 output_dir = Path("../outputs")
 output_dir.mkdir(exist_ok=True)
 
-# Read processed CSV data
+# Read processed CSV data and apply readable column names
 data_path = "../../01_preprocessing/outputs/processed_person_master.csv"
 df = pd.read_csv(data_path)
+df = create_readable_columns(df)
+print("Applied readable column names for analysis")
 
 # Keep rows with valid WFH intensity, age group, and weights
 valid_df = df[
     (df["wfh_intensity_total"].between(0, 7)) &  
     (df["wfh_intensity_total"].notna()) &        
-    (df["agegroup"].notna()) &
-    (df["perspoststratweight"].notna())
+    (df["age_group"].notna()) &
+    (df["person_survey_weight"].notna())
 ].copy()
 
-# Crosstab with age group as rows, WFH intensity as columns, values weighted by perspoststratweight
+# Crosstab with age group as rows, WFH intensity as columns, values weighted by person_survey_weight
 weighted_table = pd.crosstab(
-    valid_df["agegroup"], 
+    valid_df["age_group"], 
     valid_df["wfh_intensity_total"],  
-    values=valid_df["perspoststratweight"],
+    values=valid_df["person_survey_weight"],
     aggfunc="sum" 
 ).fillna(0)  
 

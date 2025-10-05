@@ -27,7 +27,7 @@ from variable_mapping import save_readable_dataset, get_ml_ready_features
 def load_vista_datasets() -> Dict[str, Optional[pd.DataFrame]]:
     print("=" * 70)
     print("VISTA 2023-2024 DATA INTEGRATION PIPELINE")
-    print("Research Question: WFH adoption factors and household travel behavior")
+    print("Research Question: WFH adoption factors")
     print("=" * 70)
 
     os.makedirs(config.OUTPUT_DIR, exist_ok=True)
