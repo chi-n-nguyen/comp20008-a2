@@ -23,6 +23,11 @@ from sklearn.metrics import (
     precision_score, recall_score, f1_score, roc_auc_score, roc_curve
 )
 import os
+import sys
+
+# Add the preprocessing directory to path to import variable mapping
+sys.path.append('../../01_preprocessing/scripts')
+from variable_mapping import create_readable_columns, get_ml_ready_features
 
 # Set random seed for reproducibility
 np.random.seed(42)
@@ -38,8 +43,11 @@ def load_and_merge_data():
     """
     print("Loading data files...")
     
-    # locations for the CSV files
-    data_path = "01_preprocessing/outputs/"
+    # Get the directory where this script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    # Go up to the project root and then to preprocessing outputs
+    project_root = os.path.dirname(os.path.dirname(script_dir))
+    data_path = os.path.join(project_root, "01_preprocessing", "outputs")
     test_file = os.path.join(data_path, "processed_household_master.csv")
     
     if os.path.exists(test_file):
@@ -51,10 +59,17 @@ def load_and_merge_data():
     
     try:
         # Load all CSV files with the correct path
-        household_df = pd.read_csv(f'{data_path}processed_household_master.csv')
-        person_df = pd.read_csv(f'{data_path}processed_person_master.csv')
-        journey_df = pd.read_csv(f'{data_path}processed_journey_master.csv')
-        morning_df = pd.read_csv(f'{data_path}processed_morning_travel.csv')
+        household_df = pd.read_csv(os.path.join(data_path, 'processed_household_master.csv'))
+        person_df = pd.read_csv(os.path.join(data_path, 'processed_person_master.csv'))
+        journey_df = pd.read_csv(os.path.join(data_path, 'processed_journey_master.csv'))
+        morning_df = pd.read_csv(os.path.join(data_path, 'processed_morning_travel.csv'))
+        
+        # Apply readable column names for better ML interpretability
+        print("Applying readable column names...")
+        household_df = create_readable_columns(household_df)
+        person_df = create_readable_columns(person_df)
+        journey_df = create_readable_columns(journey_df)
+        morning_df = create_readable_columns(morning_df)
         
         return household_df, person_df, journey_df, morning_df
         
@@ -75,63 +90,49 @@ def create_wfh_target(person_df):
     print("CREATING WFH TARGET VARIABLE")
     print("="*70)
     
-    # Check which WFH columns are available
-    wfh_columns = ['anywfh', 'wfhmon', 'wfhtue', 'wfhwed', 'wfhthu', 
-                   'wfhfri', 'wfhsat', 'wfhsun', 'wfhtravday']
+    # Check which WFH columns are available (try both original and readable names)
+    wfh_columns_original = ['anywfh', 'wfhmon', 'wfhtue', 'wfhwed', 'wfhthu', 
+                           'wfhfri', 'wfhsat', 'wfhsun', 'wfhtravday']
+    wfh_columns_readable = ['works_from_home_any', 'wfh_monday', 'wfh_tuesday', 'wfh_wednesday', 
+                           'wfh_thursday', 'wfh_friday', 'wfh_saturday', 'wfh_sunday', 'wfh_on_travel_day']
     
-    available_wfh_cols = [col for col in wfh_columns if col in person_df.columns]
+    available_wfh_cols = [col for col in wfh_columns_original + wfh_columns_readable if col in person_df.columns]
     print(f"Found WFH columns: {available_wfh_cols}")
     
-    if 'anywfh' in person_df.columns:
-        # Use 'anywfh' as the primary target (indicates if person works from home at all)
-        person_df['wfh'] = person_df['anywfh'].copy()
-        
-        # Convert to binary if needed (handle different encodings)
-        # Encodings: Yes/No, 1/0
-        if person_df['wfh'].dtype == 'object':
-            # String values like 'Yes'/'No'
-            person_df['wfh'] = person_df['wfh'].map({
-                'Yes': 1, 'No': 0, '1': 1, '0': 0
-            })
-        
-        # Ensure binary (0 or 1)
-        person_df['wfh'] = (person_df['wfh'] > 0).astype(int)
-        
-        print(f"\nUsing 'anywfh' as target variable")
-        
-    elif 'wfhtravday' in person_df.columns:
-        # Alternative: Use WFH on travel day
-        person_df['wfh'] = person_df['wfhtravday'].copy()
-        if person_df['wfh'].dtype == 'object':
-            person_df['wfh'] = person_df['wfh'].map({
-                'Yes': 1, 'No': 0, '1': 1, '0': 0
-            })
-        person_df['wfh'] = (person_df['wfh'] > 0).astype(int)
-        print(f"\nUsing 'wfhtravday' as target variable")
-        
+    if 'works_from_home_any' in person_df.columns:
+        # Use readable column name
+        person_df['wfh_adopter'] = person_df['works_from_home_any'].copy()
+        target_col = 'works_from_home_any'
+    elif 'anywfh' in person_df.columns:
+        # Use 'anywfh' as fallback target
+        person_df['wfh_adopter'] = person_df['anywfh'].copy()
+        target_col = 'anywfh'
     else:
-        # Fallback: Create target from any weekday WFH
-        weekday_cols = [col for col in ['wfhmon', 'wfhtue', 'wfhwed', 'wfhthu', 'wfhfri'] 
-                       if col in person_df.columns]
-        
-        if weekday_cols:
-            # If person WFH on any weekday, mark as WFH
-            person_df['wfh'] = person_df[weekday_cols].apply(
-                lambda row: int(any(x > 0 for x in row if pd.notna(x))), axis=1
-            )
-            print(f"\nCreated target from weekday WFH columns: {weekday_cols}")
-        else:
-            raise ValueError("No WFH columns found in dataset!")
+        # Create target from other WFH columns
+        person_df['wfh_adopter'] = 0
+        target_col = 'derived'
+    
+    # Convert to binary if needed (handle different encodings)
+    if person_df['wfh_adopter'].dtype == 'object':
+        # String values like 'Yes'/'No'
+        person_df['wfh_adopter'] = person_df['wfh_adopter'].map({
+            'Yes': 1, 'No': 0, '1': 1, '0': 0
+        })
+    
+    # Ensure binary (0 or 1)
+    person_df['wfh_adopter'] = (person_df['wfh_adopter'] > 0).astype(int)
+    
+    print(f"\nUsing '{target_col}' as target variable")
     
     # Handle missing values in target
-    missing_count = person_df['wfh'].isnull().sum()
+    missing_count = person_df['wfh_adopter'].isnull().sum()
     if missing_count > 0:
         print(f"\n  Warning: {missing_count} missing values in WFH target")
         print("Dropping rows with missing target values...")
-        person_df = person_df.dropna(subset=['wfh'])
+        person_df = person_df.dropna(subset=['wfh_adopter'])
     
     # Display distribution
-    wfh_counts = person_df['wfh'].value_counts()
+    wfh_counts = person_df['wfh_adopter'].value_counts()
     print(f"\nWFH Target Distribution:")
     print(f"  Non-WFH (0): {wfh_counts.get(0, 0)} ({wfh_counts.get(0, 0)/len(person_df)*100:.1f}%)")
     print(f"  WFH (1):     {wfh_counts.get(1, 0)} ({wfh_counts.get(1, 0)/len(person_df)*100:.1f}%)")
@@ -202,11 +203,11 @@ def select_features(df):
     print("="*70)
     
     # Ensure we have the target variable
-    if 'wfh' not in df.columns:
-        raise ValueError("Target variable 'wfh' not found. Check create_wfh_target() function.")
+    if 'wfh_adopter' not in df.columns:
+        raise ValueError("Target variable 'wfh_adopter' not found. Check create_wfh_target() function.")
     
     # Separate features and target
-    target = 'wfh'
+    target = 'wfh_adopter'
     
     # Exclude non-feature columns (IDs, dates, target)
     exclude_keywords = ['id', 'date', 'time', 'name', target]
@@ -260,7 +261,7 @@ def select_features(df):
 # 2. PREPROCESSING
 # ============================================================================
 
-def prepare_train_test_split(df, target_col='wfh', test_size=0.2):
+def prepare_train_test_split(df, target_col='wfh_adopter', test_size=0.2):
     """
     Split data into training and testing sets.
     """
@@ -491,7 +492,11 @@ def plot_results(results_rf, results_lr, y_test):
 
     plt.tight_layout()
     
-    output_path = os.path.join("03_supervised_learning", "outputs", "wfh_prediction_results.png")
+    # Create output path relative to script location
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_dir = os.path.join(os.path.dirname(script_dir), "outputs")
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, "wfh_prediction_results.png")
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.show()
 
@@ -524,7 +529,11 @@ def plot_feature_importance(model_rf, model_lr, feature_names, top_n=15):
                   fontsize=12, fontweight='bold')
     ax2.invert_yaxis()
 
-    output_path = os.path.join("03_supervised_learning", "outputs", "feature_importance.png")
+    # Create output path relative to script location
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_dir = os.path.join(os.path.dirname(script_dir), "outputs")
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, "feature_importance.png")
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.show()
 
