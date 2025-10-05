@@ -67,11 +67,21 @@ unweighted_avg = df['variable'].mean()
 
 ## Output Datasets
 
-The pipeline produces four main processed datasets:
+The pipeline produces both original and ML-friendly datasets:
+
+### Original Datasets (VISTA variable names)
 1. `processed_person_master.csv` - Individual-level data for WFH analysis (weight: `analysis_weight`)
 2. `processed_household_master.csv` - Household profiles for clustering (weight: `analysis_weight`)
 3. `processed_journey_master.csv` - Work journey analysis (weight: `journey_weight`)
 4. `processed_morning_travel.csv` - Morning travel patterns
+
+### ML-Friendly Datasets (readable variable names)
+1. `processed_person_master_readable.csv` - Person data with clear column names
+2. `processed_household_master_readable.csv` - Household data with clear column names
+3. `processed_person_master_readable_feature_dictionary.json` - Feature explanations
+4. `processed_household_master_readable_feature_dictionary.json` - Feature explanations
+
+**For ML team**: Use the `*_readable.csv` files which transform cryptic names like `hhpoststratweight_GROUP_1` to `weight_demo_group_1` and `anzsco1` to `occupation_major_group`.
 
 All datasets include appropriate survey weights for population-representative analysis.
 

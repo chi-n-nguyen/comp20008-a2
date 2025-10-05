@@ -21,6 +21,7 @@ from aggregates import (
 )
 from validate import handle_missing_values, detect_outliers, cap_outliers
 from weights import apply_weights_to_person_data
+from variable_mapping import save_readable_dataset, get_ml_ready_features
 
 
 def load_vista_datasets() -> Dict[str, Optional[pd.DataFrame]]:
@@ -110,9 +111,23 @@ def main() -> None:
 
     person_master_clean.to_csv(f"{config.OUTPUT_DIR}/processed_person_master.csv", index=False)
     print(f"Saved: processed_person_master.csv ({person_master_clean.shape})")
+    
+    # Save ML-friendly version with readable column names
+    save_readable_dataset(
+        person_master_clean, 
+        f"{config.OUTPUT_DIR}/processed_person_master_readable.csv",
+        include_dictionary=True
+    )
 
     household_master_clean.to_csv(f"{config.OUTPUT_DIR}/processed_household_master.csv", index=False)
     print(f"Saved: processed_household_master.csv ({household_master_clean.shape})")
+    
+    # Save ML-friendly household version
+    save_readable_dataset(
+        household_master_clean,
+        f"{config.OUTPUT_DIR}/processed_household_master_readable.csv",
+        include_dictionary=True
+    )
 
     journey_master_clean.to_csv(f"{config.OUTPUT_DIR}/processed_journey_master.csv", index=False)
     print(f"Saved: processed_journey_master.csv ({journey_master_clean.shape})")
