@@ -36,6 +36,23 @@ The preprocessing stage handles data cleaning, integration, and feature engineer
 
 ## Key Features
 
+### Survey Weights (`weights.py`)
+VISTA uses complex weighting schemes for population representativeness:
+
+#### Weight Types
+- **`perspoststratweight`**: Individual-level population expansion (use for person analysis)
+- **`hhpoststratweight`**: Household-level population expansion (use for household analysis)  
+- **`analysis_weight`**: Unified weight field auto-selected based on dataset type
+
+#### Usage Example
+```python
+# CORRECT: Weighted analysis
+weighted_avg = (df['variable'] * df['analysis_weight']).sum() / df['analysis_weight'].sum()
+
+# INCORRECT: Unweighted analysis (not population-representative)
+unweighted_avg = df['variable'].mean()
+```
+
 ### Data Validation (`validate.py`)
 - Column presence validation
 - Missing value handling with configurable thresholds
@@ -51,10 +68,12 @@ The preprocessing stage handles data cleaning, integration, and feature engineer
 ## Output Datasets
 
 The pipeline produces four main processed datasets:
-1. `processed_person_master.csv` - Individual-level data for WFH analysis
-2. `processed_household_master.csv` - Household profiles for clustering
-3. `processed_journey_master.csv` - Work journey analysis
+1. `processed_person_master.csv` - Individual-level data for WFH analysis (weight: `analysis_weight`)
+2. `processed_household_master.csv` - Household profiles for clustering (weight: `analysis_weight`)
+3. `processed_journey_master.csv` - Work journey analysis (weight: `journey_weight`)
 4. `processed_morning_travel.csv` - Morning travel patterns
+
+All datasets include appropriate survey weights for population-representative analysis.
 
 ## Usage
 
@@ -72,3 +91,7 @@ python scripts/data_integration.py
 Key parameters can be adjusted in `config.py`:
 - `MISSING_DROP_THRESHOLD`: Column drop threshold for missing values
 - `NUMERIC_MEDIAN_THRESHOLD`: Threshold for median imputation
+
+## Important Notes
+
+**Survey Weights**: Always use appropriate weights in analysis to ensure population representativeness. The `analysis_weight` column is pre-configured for each dataset type. Unweighted analysis will not reflect true Melbourne population patterns.
