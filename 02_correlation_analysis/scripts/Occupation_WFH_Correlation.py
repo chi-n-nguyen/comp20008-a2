@@ -14,11 +14,11 @@ import math
 # to examine the association between these categorical variables.
 
 # Create the output directory if it doesn't already exist
-output_dir = Path("/Users/luchang/Desktop/comp20008-a2/02_correlation_analysis/outputs")
+output_dir = Path("../outputs")
 output_dir.mkdir(exist_ok=True)
 
 # Load the dataset and keep only valid samples (respondents who answered "Yes" or "No" to WFH adoption)
-data_path = "/Users/luchang/Desktop/comp20008-a2/01_preprocessing/outputs/processed_person_master.csv"
+data_path = "../../01_preprocessing/outputs/processed_person_master.csv"
 df = pd.read_csv(data_path)
 valid_df = df[df["anywfh"].isin(["Yes", "No"])]
 

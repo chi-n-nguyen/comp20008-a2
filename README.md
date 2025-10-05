@@ -59,6 +59,16 @@ comp20008-a2/
 │   └── outputs/
 │       ├── feature_importance.png
 │       └── wfh_prediction_results.png
+├── 04_clustering_analysis/         # Unsupervised learning and segmentation
+│   ├── README.md                   # Clustering analysis documentation
+│   ├── scripts/
+│   │   ├── household_wfh_clustering.py     # Main clustering implementation
+│   │   └── geographic_cluster_analysis.py  # Geographic distribution analysis
+│   └── outputs/
+│       ├── cluster_optimization.png
+│       ├── household_clusters_pca.png
+│       ├── cluster_profiles_heatmap.png
+│       └── geographic_cluster_*.png
 └── README.md
 ```
 
@@ -100,10 +110,9 @@ VISTA data includes expansion weights to ensure population representativeness:
 - Model performance comparison and evaluation metrics
 
 ### 4. Clustering Analysis
-- Household WFH profile segmentation
-- Travel behavior pattern clustering  
-- Geographic and demographic clustering
-*(Note: This component will be implemented as the project progresses)*
+- **Household WFH Profile Segmentation**: K-means clustering to identify distinct household WFH adoption patterns
+- **Geographic Distribution Analysis**: Spatial clustering patterns across Melbourne regions
+- **Travel Behavior Profiling**: Cluster-based analysis of travel pattern changes linked to WFH adoption
 
 ### 5. Visualization
 - Statistical correlation heatmaps and distribution plots
@@ -170,10 +179,19 @@ cd 03_supervised_learning/scripts
 python wfh_prediction.py               # WFH prediction models
 ```
 
+### Clustering Analysis
+Run unsupervised learning analysis:
+```bash
+cd 04_clustering_analysis/scripts
+python household_wfh_clustering.py     # Household clustering
+python geographic_cluster_analysis.py  # Geographic distribution
+```
+
 ### Output Files Generated
 - **Preprocessing**: `processed_person_master.csv`, `processed_household_master.csv`, `processed_journey_master.csv`, `processed_morning_travel.csv`
 - **Correlation**: `adoption_and_intensity.png`, `age_group_vs_wfh_intensity_nmi_original.png`
 - **ML Models**: `feature_importance.png`, `wfh_prediction_results.png`
+- **Clustering**: `cluster_optimization.png`, `household_clusters_pca.png`, `cluster_profiles_heatmap.png`, `geographic_cluster_distribution.png`
 
 Optional (faster I/O): install Parquet support
 ```bash

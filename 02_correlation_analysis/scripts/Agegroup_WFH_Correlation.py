@@ -6,11 +6,11 @@ from pathlib import Path
 import math
 
 # Create folder for saving outputs
-output_dir = Path("/Users/luchang/Desktop/comp20008-a2/02_correlation_analysis/outputs")
+output_dir = Path("../outputs")
 output_dir.mkdir(exist_ok=True)
 
 # Read processed CSV data
-data_path = "/Users/luchang/Desktop/comp20008-a2/01_preprocessing/outputs/processed_person_master.csv"
+data_path = "../../01_preprocessing/outputs/processed_person_master.csv"
 df = pd.read_csv(data_path)
 
 # Keep rows with valid WFH intensity, age group, and weights
