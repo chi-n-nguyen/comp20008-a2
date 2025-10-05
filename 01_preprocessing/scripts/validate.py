@@ -7,16 +7,15 @@ Functions:
 - cap_outliers: cap numeric columns at 99th percentile
 """
 
-from typing import List, Dict
 import pandas as pd
 import config
 
-def assert_required_columns(df: pd.DataFrame, cols: List[str], name: str) -> None:
+def assert_required_columns(df, cols, name):
     missing = [c for c in cols if c not in df.columns]
     if missing:
         raise ValueError(f"{name} is missing required columns: {missing}")
 
-def handle_missing_values(df: pd.DataFrame, dataset_name: str) -> pd.DataFrame:
+def handle_missing_values(df, dataset_name):
     print(f"\n{'='*70}")
     print(f"MISSING VALUE HANDLING: {dataset_name}")
     print("="*70)
@@ -52,11 +51,11 @@ def handle_missing_values(df: pd.DataFrame, dataset_name: str) -> pd.DataFrame:
     print(f"\nCleaning complete. Shape: {df_clean.shape}")
     return df_clean
 
-def detect_outliers(df: pd.DataFrame, numeric_cols: List[str]) -> Dict[str, Dict[str, float]]:
+def detect_outliers(df, numeric_cols):
     print(f"\n{'='*70}")
     print("OUTLIER DETECTION")
     print("="*70)
-    outlier_summary: Dict[str, Dict[str, float]] = {}
+    outlier_summary = {}
     for col in numeric_cols:
         if col not in df.columns:
             continue
@@ -74,7 +73,7 @@ def detect_outliers(df: pd.DataFrame, numeric_cols: List[str]) -> Dict[str, Dict
         print(f"{col}: {outliers} outliers ({pct:.2f}%)")
     return outlier_summary
 
-def cap_outliers(df: pd.DataFrame, numeric_cols: List[str]) -> pd.DataFrame:
+def cap_outliers(df, numeric_cols):
     df_capped = df.copy()
     for col in numeric_cols:
         if col in df_capped.columns:

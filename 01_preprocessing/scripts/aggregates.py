@@ -7,10 +7,9 @@ Functions:
 - create_journey_level_dataset: work journeys with person characteristics
 """
 
-from typing import List
 import pandas as pd
 
-def analyze_travel_start_times(persons_df: pd.DataFrame, trips_df: pd.DataFrame) -> pd.DataFrame:
+def analyze_travel_start_times(persons_df, trips_df):
     person_cols = ['persid', 'hhid', 'wfh_intensity', 'wfh_adopter', 'wfh_category', 'perspoststratweight']
     person_cols = [c for c in person_cols if c in persons_df.columns]
     trips_with_person = trips_df.merge(persons_df[person_cols], on='persid', how='left')
@@ -34,7 +33,7 @@ def analyze_travel_start_times(persons_df: pd.DataFrame, trips_df: pd.DataFrame)
     morning['weight'] = morning['perspoststratweight']
     return morning
 
-def create_person_level_dataset(persons_df: pd.DataFrame, households_df: pd.DataFrame) -> pd.DataFrame:
+def create_person_level_dataset(persons_df, households_df):
     hh_cols = ['hhid', 'hhsize', 'dwelltype', 'totalvehs', 'hhinc_group', 'homelga', 'homeregion_ASGS']
     if 'hhpoststratweight' in households_df.columns:
         hh_cols.append('hhpoststratweight')
@@ -52,7 +51,7 @@ def create_person_level_dataset(persons_df: pd.DataFrame, households_df: pd.Data
     person_analysis['analysis_weight'] = person_analysis['perspoststratweight']
     return person_analysis
 
-def create_household_level_dataset(households_enhanced: pd.DataFrame, trips_df: pd.DataFrame) -> pd.DataFrame:
+def create_household_level_dataset(households_enhanced, trips_df):
     trip_agg_cols = {}
     if 'tripno' in trips_df.columns:
         trip_agg_cols['tripno'] = 'count'
@@ -79,7 +78,7 @@ def create_household_level_dataset(households_enhanced: pd.DataFrame, trips_df: 
         hh_master['analysis_weight'] = 1.0
     return hh_master
 
-def create_journey_level_dataset(journey_work_df: pd.DataFrame, persons_df: pd.DataFrame) -> pd.DataFrame:
+def create_journey_level_dataset(journey_work_df, persons_df):
     person_cols = ['persid', 'wfh_intensity', 'wfh_adopter', 'wfh_category', 'perspoststratweight']
     optional = ['agegroup', 'sex', 'carlicence', 'emptype', 'persinc']
     for col in optional:

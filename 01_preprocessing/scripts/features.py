@@ -5,11 +5,10 @@ Functions:
 - create_household_wfh_metrics: aggregates person WFH to household metrics
 """
 
-from typing import Dict, List
 import pandas as pd
 import config
 
-def create_wfh_features(df: pd.DataFrame) -> pd.DataFrame:
+def create_wfh_features(df):
     df_features = df.copy()
     existing_weekdays = [c for c in config.WFH_WEEKDAYS if c in df_features.columns]
     existing_weekends = [c for c in config.WFH_WEEKENDS if c in df_features.columns]
@@ -41,7 +40,7 @@ def create_wfh_features(df: pd.DataFrame) -> pd.DataFrame:
 
     df_features['wfh_adopter'] = (df_features['wfh_intensity_total'] > 0).astype(int)
 
-    def categorize_wfh(score: float) -> str:
+    def categorize_wfh(score):
         if score == 0:
             return 'No_WFH'
         elif score <= 2:
@@ -60,7 +59,7 @@ def create_wfh_features(df: pd.DataFrame) -> pd.DataFrame:
 
     return df_features
 
-def create_household_wfh_metrics(persons_df: pd.DataFrame, households_df: pd.DataFrame) -> pd.DataFrame:
+def create_household_wfh_metrics(persons_df, households_df):
     hh_wfh = persons_df.groupby('hhid').agg({
         'wfh_adopter': ['sum', 'mean'],
         'wfh_intensity': ['mean', 'max'],
