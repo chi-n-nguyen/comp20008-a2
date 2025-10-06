@@ -94,6 +94,11 @@ def create_journey_level_dataset(journey_work_df, persons_df):
         if col in persons_df.columns:
             person_cols.append(col)
     journey_analysis = journey_work_df.merge(persons_df[person_cols], on='persid', how='left')
+    
+    # Apply proper journey weights
+    from weights import set_journey_analysis_weight
+    journey_analysis = set_journey_analysis_weight(journey_analysis)
+    
     return journey_analysis
 
 
