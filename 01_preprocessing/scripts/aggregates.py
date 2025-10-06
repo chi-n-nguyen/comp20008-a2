@@ -34,9 +34,18 @@ def analyze_travel_start_times(persons_df, trips_df):
     return morning
 
 def create_person_level_dataset(persons_df, households_df):
-    hh_cols = ['hhid', 'hhsize', 'dwelltype', 'totalvehs', 'hhinc_group', 'homelga', 'homeregion_ASGS']
+    # Avoid duplicate columns by dropping overlapping ones from household data
+    hh_cols = ['hhid', 'hhsize', 'dwelltype', 'totalvehs', 'hhinc_group']
+    
+    # Only add geographic columns if not already in persons data
+    if 'homelga' not in persons_df.columns and 'homelga' in households_df.columns:
+        hh_cols.append('homelga')
+    if 'homeregion_ASGS' not in persons_df.columns and 'homeregion_ASGS' in households_df.columns:
+        hh_cols.append('homeregion_ASGS')
+        
     if 'hhpoststratweight' in households_df.columns:
         hh_cols.append('hhpoststratweight')
+    
     hh_cols = [c for c in hh_cols if c in households_df.columns]
     person_analysis = persons_df.merge(households_df[hh_cols], on='hhid', how='left')
     

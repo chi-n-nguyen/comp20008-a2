@@ -14,8 +14,9 @@ def create_wfh_features(df):
     existing_weekends = [c for c in config.WFH_WEEKENDS if c in df_features.columns]
     existing_all_days = [c for c in config.WFH_ALL_DAYS if c in df_features.columns]
 
-    # Process all WFH day columns
-    for col in existing_all_days:
+    # Process all WFH day columns including travel day
+    all_wfh_columns = existing_all_days + ['wfhtravday'] if 'wfhtravday' in df_features.columns else existing_all_days
+    for col in all_wfh_columns:
         df_features[col] = df_features[col].map(config.WFH_MAPPING)
         df_features[col] = pd.to_numeric(df_features[col], errors='coerce').fillna(0)
 
@@ -38,7 +39,9 @@ def create_wfh_features(df):
     # Keep original wfh_intensity as weekdays for backward compatibility
     df_features['wfh_intensity'] = df_features['wfh_intensity_weekdays']
 
-    df_features['wfh_adopter'] = (df_features['wfh_intensity_total'] > 0).astype(int)
+    # WFH adopter includes those who WFH on regular days OR travel days
+    wfh_travday = df_features['wfhtravday'] if 'wfhtravday' in df_features.columns else 0
+    df_features['wfh_adopter'] = ((df_features['wfh_intensity_total'] > 0) | (wfh_travday > 0)).astype(int)
 
     def categorize_wfh(score):
         if score == 0:
@@ -74,10 +77,10 @@ def create_household_wfh_metrics(persons_df, households_df):
     hh_wfh.columns = ['hhid', 'total_wfh_adopters', 'prop_wfh_adopters',
                       'total_workers', 'hhweight']
     
-    # Calculate WFH intensity metrics only for workers
+    # Calculate WFH intensity metrics only for workers using total intensity for consistency
     if len(workers_only) > 0:
         worker_wfh = workers_only.groupby('hhid').agg({
-            'wfh_intensity': ['mean', 'max']
+            'wfh_intensity_total': ['mean', 'max']
         }).reset_index()
         worker_wfh.columns = ['hhid', 'avg_wfh_intensity', 'max_wfh_intensity']
         
