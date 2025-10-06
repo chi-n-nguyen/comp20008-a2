@@ -244,7 +244,7 @@
     "weight_column": "analysis_weight"
   },
   "journey_master": {
-    "rows": 1819,
+    "rows": 2503,
     "columns": [
       "hhid",
       "persid",
@@ -280,7 +280,9 @@
       "sex",
       "carlicence",
       "emptype",
-      "persinc"
+      "persinc",
+      "analysis_weight",
+      "weight_source"
     ],
     "dtypes": {
       "hhid": "object",
@@ -317,7 +319,9 @@
       "sex": "object",
       "carlicence": "object",
       "emptype": "object",
-      "persinc": "object"
+      "persinc": "object",
+      "analysis_weight": "float64",
+      "weight_source": "object"
     },
     "purpose": "Journey correlation analysis",
     "weight_column": "analysis_weight"

@@ -30,8 +30,24 @@ def analyze_travel_start_times(persons_df, trips_df):
             return 'Peak_Late'
         return 'Late'
     morning['start_time_category'] = morning['starthour'].apply(categorize_start_time)
-    morning['weight'] = morning['perspoststratweight']
+    
+    # Apply proper trip weights
+    from weights import set_trip_analysis_weight
+    morning = set_trip_analysis_weight(morning)
+    
     return morning
+
+def analyze_stops_data(persons_df, stops_df):
+    """Analyze stops data and join with person characteristics"""
+    person_cols = ['persid', 'hhid', 'wfh_intensity', 'wfh_adopter', 'wfh_category', 'perspoststratweight']
+    person_cols = [c for c in person_cols if c in persons_df.columns]
+    stops_with_person = stops_df.merge(persons_df[person_cols], on='persid', how='left')
+    
+    # Apply proper stop weights
+    from weights import set_stop_analysis_weight
+    stops_with_person = set_stop_analysis_weight(stops_with_person)
+    
+    return stops_with_person
 
 def create_person_level_dataset(persons_df, households_df):
     # Avoid duplicate columns by dropping overlapping ones from household data

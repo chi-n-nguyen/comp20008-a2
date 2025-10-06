@@ -172,7 +172,7 @@ def create_readable_columns(df):
     print("Column name transformations applied:")
     for old_name, new_name in VARIABLE_MAPPING.items():
         if old_name in df.columns:
-            print(f"  {old_name} → {new_name}")
+            print(f"  {old_name} -> {new_name}")
     
     return df_readable
 

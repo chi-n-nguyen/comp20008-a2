@@ -6,7 +6,7 @@ Rigorous data integration and quality control for VISTA 2023-2024 WFH adoption a
 
 Multi-dataset integration with methodological quality controls:
 - **Data sources**: Households, persons, trips, journeys, stops
-- **Integration**: Hierarchical identifiers (person → household → journey)
+- **Integration**: Hierarchical identifiers (person -> household -> journey)
 - **Quality assurance**: Target variable validation, survey weighting, zero missing values
 - **Output**: Analysis-ready datasets with human-readable variable names
 
@@ -75,9 +75,9 @@ Multi-dataset integration with methodological quality controls:
 - **`*_feature_dictionary.json`**: Complete feature documentation
 
 **Variable transformation examples**:
-- `hhpoststratweight_GROUP_1` → `weight_demo_group_1`
-- `anzsco1` → `occupation_major_group`
-- `agegroup` → `age_group`
+- `hhpoststratweight_GROUP_1` -> `weight_demo_group_1`
+- `anzsco1` -> `occupation_major_group`
+- `agegroup` -> `age_group`
 
 ### Quality Metrics
 - **Zero missing values** across all datasets
