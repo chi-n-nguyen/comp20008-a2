@@ -66,15 +66,20 @@ def create_household_wfh_metrics(persons_df, households_df):
     # Filter to workers only for WFH intensity calculations
     workers_only = persons_df[persons_df['is_worker'] == 1].copy()
     
-    # Calculate metrics for all household members
+    # Calculate household WFH metrics
     hh_wfh = persons_df.groupby('hhid').agg({
-        'wfh_adopter': ['sum', 'mean'],
+        'wfh_adopter': 'sum',
         'is_worker': 'sum'
     }).reset_index()
     
     # Flatten column names first
-    hh_wfh.columns = ['hhid', 'total_wfh_adopters', 'prop_wfh_adopters',
-                      'total_workers']
+    hh_wfh.columns = ['hhid', 'total_wfh_adopters', 'total_workers']
+    
+    # Calculate proportion of workers who are WFH adopters
+    hh_wfh['prop_wfh_adopters'] = hh_wfh.apply(
+        lambda r: (r['total_wfh_adopters'] / r['total_workers']) if r['total_workers'] > 0 else 0.0,
+        axis=1
+    )
     
     # Calculate WFH intensity metrics only for workers using total intensity for consistency
     if len(workers_only) > 0:
