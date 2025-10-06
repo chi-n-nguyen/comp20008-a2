@@ -60,16 +60,32 @@ def create_wfh_features(df):
     return df_features
 
 def create_household_wfh_metrics(persons_df, households_df):
+    # Filter to workers only for WFH intensity calculations
+    workers_only = persons_df[persons_df['is_worker'] == 1].copy()
+    
+    # Calculate metrics for all household members
     hh_wfh = persons_df.groupby('hhid').agg({
         'wfh_adopter': ['sum', 'mean'],
-        'wfh_intensity': ['mean', 'max'],
         'is_worker': 'sum',
         config.PERSON_WEIGHT: 'first'
     }).reset_index()
-
+    
+    # Flatten column names first
     hh_wfh.columns = ['hhid', 'total_wfh_adopters', 'prop_wfh_adopters',
-                      'avg_wfh_intensity', 'max_wfh_intensity',
                       'total_workers', 'hhweight']
+    
+    # Calculate WFH intensity metrics only for workers
+    if len(workers_only) > 0:
+        worker_wfh = workers_only.groupby('hhid').agg({
+            'wfh_intensity': ['mean', 'max']
+        }).reset_index()
+        worker_wfh.columns = ['hhid', 'avg_wfh_intensity', 'max_wfh_intensity']
+        
+        # Merge worker metrics with household metrics
+        hh_wfh = hh_wfh.merge(worker_wfh, on='hhid', how='left')
+    else:
+        hh_wfh['avg_wfh_intensity'] = 0.0
+        hh_wfh['max_wfh_intensity'] = 0.0
 
     hh_wfh['has_worker'] = (hh_wfh['total_workers'] > 0).astype(int)
     hh_wfh['hh_wfh_saturation'] = hh_wfh.apply(

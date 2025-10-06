@@ -5,6 +5,8 @@
 - Imported by other modules to avoid hard-coded literals
 """
 
+from typing import Dict
+
 # Paths
 RAW_DIR = "../../00_raw_data"
 OUTPUT_DIR = "../../01_preprocessing/outputs"
