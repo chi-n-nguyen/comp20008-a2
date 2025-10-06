@@ -69,7 +69,8 @@
       "hhinc_group",
       "homelga",
       "hhpoststratweight",
-      "analysis_weight"
+      "analysis_weight",
+      "weight_source"
     ],
     "dtypes": {
       "persid": "object",
@@ -139,7 +140,8 @@
       "hhinc_group": "object",
       "homelga": "object",
       "hhpoststratweight": "float64",
-      "analysis_weight": "float64"
+      "analysis_weight": "float64",
+      "weight_source": "object"
     },
     "purpose": "Individual-level WFH prediction (supervised learning)",
     "weight_column": "analysis_weight"
@@ -178,7 +180,6 @@
       "total_wfh_adopters",
       "prop_wfh_adopters",
       "total_workers",
-      "hhweight",
       "avg_wfh_intensity",
       "max_wfh_intensity",
       "has_worker",
@@ -187,6 +188,7 @@
       "avg_trip_duration",
       "avg_start_hour",
       "analysis_weight",
+      "weight_source",
       "avg_wfh_intensity_missing",
       "max_wfh_intensity_missing",
       "total_trips_missing",
@@ -225,7 +227,6 @@
       "total_wfh_adopters": "int64",
       "prop_wfh_adopters": "float64",
       "total_workers": "int64",
-      "hhweight": "float64",
       "avg_wfh_intensity": "float64",
       "max_wfh_intensity": "float64",
       "has_worker": "int64",
@@ -234,6 +235,7 @@
       "avg_trip_duration": "float64",
       "avg_start_hour": "float64",
       "analysis_weight": "float64",
+      "weight_source": "object",
       "avg_wfh_intensity_missing": "int64",
       "max_wfh_intensity_missing": "int64",
       "total_trips_missing": "int64",

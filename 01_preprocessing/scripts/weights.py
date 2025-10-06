@@ -1,8 +1,10 @@
-"""Weight utilities for person and journey datasets.
+"""Weight utilities for all VISTA dataset types.
 
 Functions:
-- apply_weights_to_person_data: set person-level `weight`
-- set_journey_analysis_weight: set `analysis_weight` and `weight_source`
+- apply_weights_to_person_data: set person-level `weight` from perspoststratweight
+- set_journey_analysis_weight: set journey-level `analysis_weight` from journey_weight
+- set_trip_analysis_weight: set trip-level `analysis_weight` from trippoststratweight  
+- set_stop_analysis_weight: set stop-level `analysis_weight` from stoppoststratweight
 """
 
 import pandas as pd

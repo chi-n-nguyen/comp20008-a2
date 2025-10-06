@@ -73,7 +73,11 @@ def create_person_level_dataset(persons_df, households_df):
         print(f"  After filter: {len(person_analysis):,} records")
         print(f"  Non-workers excluded: {len(persons_df) - len(person_analysis):,} records")
     
+    # Apply proper person weights
+    from weights import apply_weights_to_person_data
+    person_analysis = apply_weights_to_person_data(person_analysis)
     person_analysis['analysis_weight'] = person_analysis['perspoststratweight']
+    person_analysis['weight_source'] = 'perspoststratweight'
     return person_analysis
 
 def create_household_level_dataset(households_enhanced, trips_df):
@@ -97,10 +101,13 @@ def create_household_level_dataset(households_enhanced, trips_df):
         hh_master = households_enhanced.merge(trip_stats, on='hhid', how='left')
     else:
         hh_master = households_enhanced.copy()
+    # Apply proper household weights
     if 'hhpoststratweight' in hh_master.columns:
         hh_master['analysis_weight'] = hh_master['hhpoststratweight']
+        hh_master['weight_source'] = 'hhpoststratweight'
     else:
         hh_master['analysis_weight'] = 1.0
+        hh_master['weight_source'] = 'unweighted'
     return hh_master
 
 def create_journey_level_dataset(journey_work_df, persons_df):
