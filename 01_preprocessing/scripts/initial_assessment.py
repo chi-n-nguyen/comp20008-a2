@@ -14,11 +14,6 @@ import os
 import warnings
 import matplotlib.pyplot as plt
 
-# =====================================
-# Research Question: "What factors predict working-from-home (WFH) adoption?"
-# Responsible: Nhat Chi Nguyen, 1492182
-# =====================================
-
 def load_vista_datasets():
     """Load all VISTA 2023-2024 datasets with proper error handling"""
     
