@@ -19,8 +19,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.metrics import (
-    confusion_matrix, classification_report, accuracy_score,
-    precision_score, recall_score, f1_score, roc_auc_score, roc_curve
+    confusion_matrix, classification_report, f1_score, roc_auc_score, roc_curve
 )
 import os
 
@@ -86,7 +85,7 @@ def create_wfh_target(person_df):
         # Use 'anywfh' as the primary target (indicates if person works from home at all)
         person_df['wfh'] = person_df['anywfh'].copy()
         
-        # Convert to binary if needed (handle different encodings)
+        # Convert to binary 
         # Encodings: Yes/No, 1/0
         if person_df['wfh'].dtype == 'object':
             # String values like 'Yes'/'No'
@@ -96,7 +95,6 @@ def create_wfh_target(person_df):
         
         # Ensure binary (0 or 1)
         person_df['wfh'] = (person_df['wfh'] > 0).astype(int)
-        
         print(f"\nUsing 'anywfh' as target variable")
         
     elif 'wfhtravday' in person_df.columns:
@@ -150,9 +148,16 @@ def prepare_features(household_df, person_df, journey_df, morning_df):
     # Start with person-level data
     df = person_df.copy()
     
-    # Identify ID columns
-    household_id_cols = ["hhid"]
-    person_id_cols = ["persid"]
+    # Identify common key columns for merging
+    # Common possibilities: 'household_id', 'person_id', 'hhid', 'persid', etc.
+    print("\nAttempting to merge datasets...")
+    
+    # Try to identify ID columns
+    household_id_cols = [col for col in household_df.columns if 'household' in col.lower() or 'hh' in col.lower()]
+    person_id_cols = [col for col in person_df.columns if 'person' in col.lower() or 'pers' in col.lower()]
+    
+    print(f"Potential household ID columns: {household_id_cols}")
+    print(f"Potential person ID columns: {person_id_cols}")
     
     # Merge with household data (adjust key names as needed)
     if household_id_cols:
@@ -161,7 +166,7 @@ def prepare_features(household_df, person_df, journey_df, morning_df):
             key_col = household_id_cols[0]
             if key_col in df.columns and key_col in household_df.columns:
                 df = df.merge(household_df, on=key_col, how='left', suffixes=('', '_hh'))
-                print(f"Merged household data on '{key_col}'")
+                print(f"✓ Merged household data on '{key_col}'")
         except Exception as e:
             print(f"Could not merge household data: {e}")
     
@@ -183,7 +188,7 @@ def prepare_features(household_df, person_df, journey_df, morning_df):
                     avg_distance.columns = [person_key, 'avg_trip_distance']
                     df = df.merge(avg_distance, on=person_key, how='left')
                     df['avg_trip_distance'] = df['avg_trip_distance'].fillna(0)
-                    print(f"Added average trip distance feature")
+                    print(f"✓ Added average trip distance feature")
         except Exception as e:
             print(f"Could not process journey data: {e}")
     
@@ -208,8 +213,8 @@ def select_features(df):
     # Separate features and target
     target = 'wfh'
     
-    # Exclude non-feature columns (IDs, dates, target)
-    exclude_keywords = ['id', 'date', 'time', 'name', target]
+    # Exclude non-feature columns 
+    exclude_keywords = ['id', target]
     
     feature_cols = [col for col in df.columns 
                    if col != target 
@@ -242,12 +247,21 @@ def select_features(df):
     print("\nEncoding categorical variables...")
     label_encoders = {}
     for col in categorical_features:
-        le = LabelEncoder()
-        df_clean[col] = le.fit_transform(df_clean[col].astype(str))
-        label_encoders[col] = le
+        try:
+            le = LabelEncoder()
+            df_clean[col] = le.fit_transform(df_clean[col].astype(str))
+            label_encoders[col] = le
+        except Exception as e:
+            print(f"Could not encode column '{col}': {e}")
+            # Drop problematic column
+            df_clean = df_clean.drop(columns=[col])
     
     # Remove any remaining rows with missing target
     df_clean = df_clean.dropna(subset=[target])
+    
+    # Check if we have enough data
+    if len(df_clean) < 100:
+        raise ValueError(f"Not enough data after cleaning: {len(df_clean)} rows. Need at least 100.")
     
     print(f"\nFinal dataset shape after cleaning: {df_clean.shape}")
     print(f"WFH distribution:")
@@ -373,9 +387,6 @@ def evaluate_model(model, X_test, y_test, model_name):
     y_pred_proba = model.predict_proba(X_test)[:, 1]
     
     cm = confusion_matrix(y_test, y_pred)
-    accuracy = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred, zero_division=0)
-    recall = recall_score(y_test, y_pred, zero_division=0)
     f1 = f1_score(y_test, y_pred, zero_division=0)
     roc_auc = roc_auc_score(y_test, y_pred_proba)
    
@@ -387,9 +398,6 @@ def evaluate_model(model, X_test, y_test, model_name):
     print(f"   True Positives:  {cm[1,1]}")
     
     print("\n2. CLASSIFICATION METRICS:")
-    print(f"   Accuracy:  {accuracy:.4f}")
-    print(f"   Precision: {precision:.4f}")
-    print(f"   Recall:    {recall:.4f}")
     print(f"   F1-Score:  {f1:.4f}")
     print(f"   ROC-AUC:   {roc_auc:.4f}")
     
@@ -398,9 +406,6 @@ def evaluate_model(model, X_test, y_test, model_name):
     
     return {
         'confusion_matrix': cm,
-        'accuracy': accuracy,
-        'precision': precision,
-        'recall': recall,
         'f1_score': f1,
         'roc_auc': roc_auc,
         'y_pred': y_pred,
@@ -421,7 +426,6 @@ def get_output_directory():
     possible_outputs = [
         '03_supervised_learning/outputs/',  # From project root
         'outputs/',  # From 03_supervised_learning folder
-        '../outputs/',  # From scripts folder
     ]
     
     # Try to create/find the output directory
@@ -461,11 +465,9 @@ def plot_results(results_rf, results_lr, y_test):
     
     # Metrics Comparison
     ax3 = plt.subplot(2, 3, 3)
-    metrics = ['Accuracy', 'Precision', 'Recall', 'F1-Score']
-    rf_scores = [results_rf['accuracy'], results_rf['precision'], 
-                 results_rf['recall'], results_rf['f1_score']]
-    lr_scores = [results_lr['accuracy'], results_lr['precision'], 
-                 results_lr['recall'], results_lr['f1_score']]
+    metrics = ['F1-Score']
+    rf_scores = [results_rf['f1_score']]
+    lr_scores = [results_lr['f1_score']]
     
     x = np.arange(len(metrics))
     width = 0.35
@@ -479,6 +481,22 @@ def plot_results(results_rf, results_lr, y_test):
     ax3.set_ylim([0, 1])
     ax3.grid(axis='y', alpha=0.3)
     
+    # ROC Curves
+    ax4 = plt.subplot(2, 3, 4)
+    fpr_rf, tpr_rf, _ = roc_curve(y_test, results_rf['y_pred_proba'])
+    fpr_lr, tpr_lr, _ = roc_curve(y_test, results_lr['y_pred_proba'])
+    
+    ax4.plot(fpr_rf, tpr_rf, label=f"Random Forest (AUC={results_rf['roc_auc']:.3f})", 
+             color='steelblue', linewidth=2)
+    ax4.plot(fpr_lr, tpr_lr, label=f"Logistic Regression (AUC={results_lr['roc_auc']:.3f})", 
+             color='seagreen', linewidth=2)
+    ax4.plot([0, 1], [0, 1], 'k--', label='Random Classifier')
+    ax4.set_xlabel('False Positive Rate')
+    ax4.set_ylabel('True Positive Rate')
+    ax4.set_title('ROC Curves Comparison', fontsize=12, fontweight='bold')
+    ax4.legend()
+    ax4.grid(alpha=0.3)
+
     # Prediction Distribution
     ax5 = plt.subplot(2, 3, 5)
     ax5.hist(results_rf['y_pred_proba'], bins=30, alpha=0.6, label='Random Forest', color='steelblue')
@@ -572,20 +590,14 @@ def main():
     print("=" * 70)
     
     comparison_df = pd.DataFrame({
-        'Metric': ['Accuracy', 'Precision', 'Recall', 'F1-Score', 'ROC-AUC'],
+        'Metric': ['F1-Score', 'ROC-AUC'],
         'Random Forest': [
-            results_rf['accuracy'], results_rf['precision'],
-            results_rf['recall'], results_rf['f1_score'], results_rf['roc_auc']
+           results_rf['f1_score'], results_rf['roc_auc']
         ],
         'Logistic Regression': [
-            results_lr['accuracy'], results_lr['precision'],
-            results_lr['recall'], results_lr['f1_score'], results_lr['roc_auc']
+            results_lr['f1_score'], results_lr['roc_auc']
         ]
     })
-    
-    comparison_df['Difference'] = comparison_df['Logistic Regression'] - comparison_df['Random Forest']
-    print("\n", comparison_df.to_string(index=False))
-    
     
     comparison_df['Difference'] = comparison_df['Logistic Regression'] - comparison_df['Random Forest']
     print("\n", comparison_df.to_string(index=False))
