@@ -1,21 +1,19 @@
 # Working From Home Adoption Analysis
 
-## **Research Question**
+**Research Question: "What factors predict working-from-home (WFH) adoption?"**
 
-**"What factors predict working-from-home (WFH) adoption?"**
+## Team Members
 
-## **Team Members**
-
-| Name | Role | Student ID | GitHub Username |
-|------|------|------------|-----------------|
+| Name | Role | Student ID | GitHub |
+|------|------|------------|--------|
 | Nhat Chi Nguyen | Team Lead + Data Integration | 1492182 | chi-n-nguyen |
 | Wanhui Li | Supervised Learning Models | 1450755 | Waiola77 |
 | Chang Lu | Correlation Analysis | 1551448 | 9uchang |
 | Jingxuan Bai | Clustering & Visualisation | 1566889 | BBrianUU |
 
-## **Project Overview**
+## Overview
 
-This project analyzes VISTA 2023-2024 travel survey data to understand the factors that influence working-from-home (WFH) adoption in Melbourne. The analysis combines statistical correlation analysis, machine learning models, and household clustering to identify key predictors of remote work adoption.
+We investigate WFH adoption predictors using VISTA 2023-2024 data representing 8,175 Melbourne residents across 3,239 households. Analysis integrates multi-level survey data through correlation analysis, supervised learning (Random Forest, Logistic Regression), and K-means clustering to identify systematic patterns in post-pandemic remote work adoption.
 
 ## **Project Structure**
 
@@ -72,141 +70,105 @@ comp20008-a2/
 └── README.md
 ```
 
-## **Datasets**
+## Data
 
-The project uses six VISTA 2023-2024 datasets:
+**VISTA 2023-2024** comprehensive travel diary representing Melbourne through stratified sampling:
 
-- **Household Data** (3,239 records): Household characteristics, income, vehicles
-- **Person Data** (8,175 records): Individual demographics, employment, WFH patterns
-- **Trips Data** (24,457 records): Individual trip details and travel patterns
-- **Stops Data** (27,862 records): Trip stops and destinations
-- **Journeys to Work** (1,819 records): Specific work-related travel patterns
-- **Journeys to Education** (684 records): Education-related travel data
+- **Household** (3,239): Dwelling, vehicles, composition
+- **Person** (8,175): Demographics, employment, WFH frequency  
+- **Trips** (24,457): Modes, purposes, timing
+- **Stops** (27,862): Locations, durations
+- **Journey-to-work** (1,819): Complete commute chains
+- **Journey-to-education** (684): Student travel
 
-### **Expansion Weights**
+**Survey Weights**: Post-stratification weights (`perspoststratweight`, `hhpoststratweight`) enable population-level inference. All analyses weight appropriately to ensure Melbourne representativeness.
 
-VISTA data includes expansion weights to ensure population representativeness:
-- **Person Data**: `perspoststratweight` - expands sample to Melbourne population
-- **Journey Data**: `journey_weight` - expands work journey sample to population
-- **Application**: All analyses multiply values by corresponding weights before statistical operations
-- **Purpose**: Results reflect actual population distribution rather than survey sample bias
+## Analysis Methods
 
-## **Analysis Components**
-
-### 1. Data Preprocessing & Integration
-- Dataset loading and quality assessment
-- Missing value analysis and treatment
-- Feature engineering for WFH metrics
-- Data integration across multiple tables
+### 1. Data Preprocessing
+Rigorous pipeline with quality controls:
+- Multi-dataset integration using hierarchical identifiers
+- WFH target variable validation (resolved inconsistencies)
+- Survey weight application throughout
+- Zero missing values, consistent data types
 
 ### 2. Correlation Analysis
-- **Age Group vs WFH Intensity**: Normalized Mutual Information analysis of age demographics and WFH frequency
-- **Occupation vs WFH Adoption**: Chi-square test examining professional categories and remote work patterns
-- Statistical relationships using weighted survey data with post-stratification weights
+Statistical association testing:
+- **Age × WFH Intensity**: Normalized Mutual Information across age groups vs WFH frequency (0-7 days/week)
+- **Occupation × WFH Adoption**: Chi-square test for occupational WFH patterns
+- Survey-weighted contingency tables for population validity
 
 ### 3. Supervised Learning
-- **WFH Prediction Models**: Machine learning algorithms for predicting remote work adoption
-- Feature importance analysis identifying key demographic and travel predictors
-- Model performance comparison and evaluation metrics
+Predictive modeling with hyperparameter optimization:
+- **Random Forest**: Feature importance, handles mixed data types
+- **Logistic Regression**: Interpretable coefficients, baseline performance
+- 5-fold cross-validation, F1-score optimization, sample weighting
 
 ### 4. Clustering Analysis
-- **Household WFH Profile Segmentation**: K-means clustering to identify distinct household WFH adoption patterns
-- **Geographic Distribution Analysis**: Spatial clustering patterns across Melbourne regions
-- **Travel Behavior Profiling**: Cluster-based analysis of travel pattern changes linked to WFH adoption
+Household behavioral segmentation:
+- **K-means clustering**: Household WFH profiles using composition, travel, adoption metrics
+- **Geographic validation**: Chi-square tests for spatial clustering patterns
+- Optimal k via elbow method and silhouette analysis
 
-### 5. Visualization
-- Statistical correlation heatmaps and distribution plots
-- Model performance visualizations and feature importance charts
-- WFH adoption patterns across demographic groups
+## Key Features
 
-## **Key Features Analyzed**
+**Demographics**: Age groups, gender, income, employment type, occupation (ANZSCO)  
+**Work Patterns**: WFH frequency (0-7 days/week), employment status, main activity  
+**Household**: Size, vehicles, dwelling type, income group, composition  
+**Travel**: Commute distance/time, transport modes, trip patterns  
+**Geographic**: Melbourne regions, local government areas
 
-- **Demographics**: Age, gender, income, employment type
-- **Work Patterns**: WFH frequency by day, employment status, main activity
-- **Travel Behavior**: Commute distance, travel time, mode choice
-- **Household Characteristics**: Size, vehicle ownership, dwelling type
-- **Geographic Factors**: Regional distribution of WFH patterns
+## Requirements
 
-## **Technologies Used**
+**Python 3.11+** with dependencies:
+```bash
+pip install pandas numpy matplotlib seaborn scikit-learn scipy
+```
 
-- **Python 3.11+**
-- **Data Analysis**: pandas, numpy
-- **Visualization**: matplotlib, seaborn
-- **Machine Learning**: scikit-learn
-- **Statistical Analysis**: scipy
-- **Development**: VS Code, Git
+## Quick Start
 
-## **Getting Started**
-
-1. Clone the repository
-2. Install required dependencies:
+1. **Process data**:
    ```bash
-   pip install pandas numpy matplotlib seaborn scikit-learn scipy
-   ```
-3. Run the initial assessment:
-   ```bash
-   cd 01_preprocessing/scripts
-   python initial_assessment.py
+   cd 01_preprocessing/scripts && python data_integration.py
    ```
 
-4. Run the full data integration pipeline (saves processed datasets under `01_preprocessing/outputs`):
+2. **Run correlation analysis**:
    ```bash
-   cd 01_preprocessing/scripts
-   python data_integration.py
+   cd 02_correlation_analysis/scripts
+   python Agegroup_WFH_Correlation.py
+   python Occupation_WFH_Correlation.py
    ```
 
-## **Running Analysis Components**
+3. **Execute ML models**:
+   ```bash
+   cd 03_supervised_learning/scripts && python wfh_prediction.py
+   ```
 
-### Data Preprocessing
-Generate all cleaned and integrated datasets:
-```bash
-cd 01_preprocessing/scripts
-python data_integration.py
-```
+4. **Perform clustering**:
+   ```bash
+   cd 04_clustering_analysis/scripts && python household_wfh_clustering.py
+   ```
 
-### Correlation Analysis
-Run statistical correlation analyses:
-```bash
-cd 02_correlation_analysis/scripts
-python Agegroup_WFH_Correlation.py     # Age group vs WFH intensity
-python Occupation_WFH_Correlation.py   # Occupation vs WFH adoption
-```
+## Output Files
 
-### Supervised Learning
-Execute machine learning models:
-```bash
-cd 03_supervised_learning/scripts
-python wfh_prediction.py               # WFH prediction models
-```
+**Preprocessing**:
+- `processed_person_master.csv` (4,361 workers)
+- `processed_household_master.csv` (3,239 households)  
+- `processed_journey_master.csv` (1,819 commuters)
+- Readable versions with human-interpretable variable names
 
-### Clustering Analysis
-Run unsupervised learning analysis:
-```bash
-cd 04_clustering_analysis/scripts
-python household_wfh_clustering.py     # Household clustering
-python geographic_cluster_analysis.py  # Geographic distribution
-```
+**Analysis Results**:
+- Correlation plots with statistical measures
+- ML model performance and feature importance
+- Household cluster profiles and geographic distributions
 
-### Output Files Generated
-- **Preprocessing**: `processed_person_master.csv`, `processed_household_master.csv`, `processed_journey_master.csv`, `processed_morning_travel.csv`
-- **Correlation**: `adoption_and_intensity.png`, `age_group_vs_wfh_intensity_nmi_original.png`
-- **ML Models**: `feature_importance.png`, `wfh_prediction_results.png`
-- **Clustering**: `cluster_optimization.png`, `household_clusters_pca.png`, `cluster_profiles_heatmap.png`, `geographic_cluster_distribution.png`
+## Expected Findings
 
-Optional (faster I/O): install Parquet support
-```bash
-pip install pyarrow
-```
+- **High predictability**: 99.9-100% ML accuracy suggests structural WFH determination
+- **Occupational dominance**: Job requirements outweigh personal preferences
+- **Household patterns**: Distinct WFH adoption profiles across household types
+- **Policy insights**: Targeted interventions for specific demographic/occupational groups
 
-## **Expected Outcomes**
+---
 
-- Identification of key predictors of WFH adoption
-- Understanding of how WFH patterns affect household travel behavior
-- Segmentation of households based on WFH and travel patterns
-- Data-driven insights for transportation and urban planning policy
-
-## **Course Information**
-
-- **Course**: COMP20008, Elements of Data Processing
-- **Semester**: Semester 2, 2025
-- **Group**: W04G5
+**Course**: COMP20008 Elements of Data Processing | **Semester**: 2, 2025 | **Group**: W04G5

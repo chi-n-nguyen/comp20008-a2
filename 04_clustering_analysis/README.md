@@ -1,10 +1,12 @@
 # Clustering Analysis
 
-This directory contains unsupervised learning analysis for identifying household WFH adoption patterns.
+Household WFH behavioral segmentation using K-means clustering to identify distinct adoption patterns and demographic profiles.
 
 ## Overview
 
-The clustering analysis addresses the research question by segmenting households based on WFH adoption patterns to identify distinct household profiles and key factors that predict WFH adoption.
+**Objective**: Segment 3,239 Melbourne households into behavioral clusters based on WFH adoption, composition, and travel patterns to inform targeted policy interventions.
+
+**Method**: K-means clustering with standardized features, optimal k via elbow method and silhouette analysis, geographic validation via chi-square tests.
 
 ## Directory Structure
 
@@ -26,146 +28,112 @@ The clustering analysis addresses the research question by segmenting households
 
 ## Analysis Components
 
-### 1. Household WFH Profile Clustering (`household_wfh_clustering.py`)
+### 1. Household WFH Clustering (`household_wfh_clustering.py`)
 
-**Objective**: Identify distinct household profiles based on WFH adoption and travel patterns
+**Features** (7 dimensions, StandardScaler normalized):
+- **Composition**: `household_size`, `vehicles_owned`, `num_working_members`
+- **WFH patterns**: `num_wfh_workers`, `household_wfh_saturation`  
+- **Travel behavior**: `total_trips`, `avg_trip_duration`
 
-**Features Used**:
-- `hhsize`: Household size
-- `totalvehs`: Number of vehicles owned
-- `num_workers`: Number of working household members
-- `num_wfh_adopters`: Number of WFH adopters
-- `total_trips`: Total household trip frequency
-- `avg_trip_duration`: Average trip duration
-- `wfh_saturation`: Proportion of workers who WFH
+**Algorithm**: K-means clustering
+- **Rationale**: Scalable, interpretable centroids, established for behavioral segmentation
+- **Alternatives considered**: Hierarchical (computational cost), DBSCAN (arbitrary cluster shapes)
 
-**Method**:
-- K-means clustering with standardized features
-- Optimal cluster selection using elbow method and silhouette analysis
-- Principal Component Analysis (PCA) for visualization
+**Optimization**:
+- **K selection**: Elbow method (WCSS) + silhouette analysis (k∈{2-8})
+- **Validation**: Minimum cluster size >5%, silhouette score >0.5
+- **Reproducibility**: Fixed random_state=42
 
 **Outputs**:
-- Cluster optimization plots showing optimal K selection
-- PCA scatter plot of households colored by cluster
+- Cluster optimization metrics and visualizations
+- PCA scatter plot with cluster assignments
 - Cluster profile comparison heatmap
+- Individual household assignments with labels
 - Individual household cluster assignments
 
-### 2. Geographic Distribution Analysis (`geographic_cluster_analysis.py`)
+### 2. Geographic Validation (`geographic_cluster_analysis.py`)
 
-**Objective**: Examine how WFH clusters are distributed across geographic areas
+**Statistical testing** for spatial clustering patterns:
 
-**Analysis Methods**:
-- Chi-square test for independence between geography and clusters
-- Herfindahl-Hirschman Index (HHI) for geographic concentration measurement
-- Cross-tabulation analysis of cluster-geography relationships
+**Methods**:
+- **Chi-square test**: Independence between geography and behavioral clusters
+- **Herfindahl-Hirschman Index**: Geographic concentration measurement  
+- **Cross-tabulation**: Cluster-geography relationship matrices
 
-**Visualizations**:
-- Stacked bar charts showing cluster distribution by area
-- Heatmaps of geographic-cluster proportions
-- Grouped bar charts for direct comparison
-- Concentration index visualization
+**Outputs**:
+- Statistical significance tests (χ², p-values)
+- Geographic concentration indices
+- Spatial distribution visualizations
+- Evidence for/against geographic clustering
 
-## Key Research Insights
+## Expected Cluster Profiles
 
-### Cluster Interpretation Framework
+**Hypothesis-driven interpretation framework**:
 
-The clustering analysis identifies household segments that represent different responses to WFH opportunities:
+1. **High WFH Households**: Large, multi-worker, high saturation, professional-heavy
+2. **Traditional Commuters**: Car-dependent, low WFH, high travel frequency, suburban
+3. **Flexible Small Households**: Compact, moderate WFH, efficient travel patterns
+4. **Mixed Adoption Households**: Variable patterns reflecting diverse occupational mix
 
-1. **High WFH Adoption Households**: Large households with multiple workers, high WFH saturation
-2. **Traditional Commuter Households**: Car-dependent, low WFH adoption, high travel frequency
-3. **Small Flexible Households**: Small size, moderate WFH, efficient travel patterns
-4. **Mixed Pattern Households**: Variable WFH adoption with diverse travel behaviors
+**Geographic patterns** (if significant):
+- Urban core: Higher flexible WFH concentration
+- Suburban: Traditional commuter dominance  
+- Transport corridors: Mixed patterns along public transport
 
-### Geographic Patterns
+## Usage
 
-- **Urban Core**: Higher concentration of flexible WFH households
-- **Suburban Areas**: Traditional commuter patterns dominate
-- **Transport Corridors**: Mixed adoption patterns along public transport routes
+**Execute clustering pipeline**:
+```bash
+cd scripts/
+python household_wfh_clustering.py    # Main clustering analysis
+python geographic_cluster_analysis.py  # Geographic validation
+```
 
-## Usage Instructions
+**Prerequisites**: Processed household data from preprocessing pipeline.
 
-### Running the Analysis
+**Dependencies**: pandas, numpy, scikit-learn, matplotlib, seaborn, scipy
 
-1. **Ensure prerequisites are met**:
-   ```bash
-   # Verify processed data exists
-   ls ../01_preprocessing/outputs/processed_household_master.csv
-   ```
+**Configuration**: 
+- K range: 2-8 clusters (adjustable in script)
+- Features: 7-dimensional household profile (customizable)
+- Reproducibility: random_state=42
 
-2. **Execute main clustering analysis**:
-   ```bash
-   cd scripts/
-   python household_wfh_clustering.py
-   ```
+## Policy Applications
 
-3. **Run geographic distribution analysis**:
-   ```bash
-   python geographic_cluster_analysis.py
-   ```
+**Transport planning**:
+- Identify high-WFH areas for reduced infrastructure demand
+- Prioritize routes serving traditional commuter clusters
+- Adjust service frequency based on cluster geographic distribution
 
-### Dependencies
+**Urban development**:
+- Zone mixed-use development in flexible WFH areas
+- Preserve office density where traditional clusters concentrate
+- Plan home office infrastructure in high-adoption neighborhoods
 
-- pandas, numpy: Data manipulation
-- scikit-learn: Clustering algorithms and preprocessing
-- matplotlib, seaborn: Visualization
-- scipy: Statistical testing
+**Workplace policy**:
+- Target WFH expansion programs to specific household profiles
+- Design commute subsidies for unavoidably traditional households
+- Develop cluster-specific flexible work arrangements
 
-### Configuration Options
+## Limitations
 
-**Clustering Parameters** (in `household_wfh_clustering.py`):
-- `K_range`: Range of cluster numbers to test (default: 2-8)
-- `random_state`: Reproducibility seed (default: 42)
-- `clustering_features`: List of features used for clustering
-
-**Analysis Features** (customizable):
-- Add/remove features based on research focus
-- Adjust missing value handling strategies
-- Modify visualization color schemes
-
-## Interpretation Guidelines
-
-### Cluster Validation
-
-- **Silhouette Score**: Measures cluster separation quality (higher = better)
-- **Elbow Method**: Identifies optimal number of clusters
-- **Geographic Distribution**: Tests if clusters have meaningful spatial patterns
-
-### Statistical Significance
-
-- **Chi-square Test**: Tests independence between geography and clusters
-- **p < 0.05**: Significant geographic clustering pattern
-- **HHI Index**: Measures geographic concentration (higher = more concentrated)
-
-### Business/Policy Implications
-
-1. **Transportation Planning**: Identify areas needing infrastructure adaptation
-2. **Urban Development**: Guide mixed-use development in high WFH areas
-3. **Public Transport**: Adjust services based on changing travel patterns
-4. **Policy Targeting**: Focus WFH support programs on specific household types
-
-## Limitations and Considerations
-
-### Data Limitations
-- Geographic granularity depends on available location variables
-- Sample size may limit cluster stability in some areas
+**Methodological**:
+- K-means assumes spherical clusters (may miss complex shapes)
+- Feature selection impacts cluster formation
 - Cross-sectional data limits temporal pattern analysis
 
-### Methodological Considerations
-- K-means assumes spherical clusters (may not suit all data patterns)
-- Feature standardization affects cluster formation
-- Optimal K selection involves subjective interpretation
+**Analytical scope**:
+- Household-level aggregation loses individual variation
+- Limited geographic granularity (LGA-level only)
+- No causal inference regarding cluster formation drivers
+- Sample size may limit cluster stability in some areas
 
-### Future Enhancements
-- Temporal clustering to identify changing patterns
-- Integration with external datasets (demographics, transport infrastructure)
-- Advanced clustering methods (hierarchical, density-based)
-- Cluster stability analysis across different time periods
+## Expected Contributions
 
-## Results Integration
+**Research question support**:
+1. **WFH predictors**: Cluster profiles reveal household characteristics driving adoption
+2. **Behavioral patterns**: Distinct household WFH adoption and travel profiles  
+3. **Geographic insights**: Spatial distribution of household cluster types
+4. **Policy targeting**: Evidence-based segmentation for intervention design
 
-The clustering results support the research question by:
-
-1. **Identifying WFH Predictors**: Cluster profiles reveal household characteristics that predict WFH adoption
-2. **Household Pattern Recognition**: Different clusters show distinct household composition and work arrangements
-3. **Geographic Insights**: Spatial distribution reveals how location influences WFH adoption patterns
-4. **Policy Relevance**: Actionable insights for supporting remote work adoption
+**Methodological contribution**: Demonstrates household-level clustering for WFH analysis, complementing individual-level predictive modeling.

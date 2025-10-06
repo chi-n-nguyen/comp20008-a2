@@ -1,16 +1,14 @@
 # Data Preprocessing Pipeline
 
-This directory contains the preprocessing pipeline for the VISTA 2023-2024 travel survey analysis.
+Rigorous data integration and quality control for VISTA 2023-2024 WFH adoption analysis.
 
 ## Overview
 
-The preprocessing stage handles data cleaning, integration, and feature engineering across multiple VISTA datasets:
-- Households
-- Persons
-- Trips
-- Journey to work
-- Journey to education
-- Stops
+Multi-dataset integration with methodological quality controls:
+- **Data sources**: Households, persons, trips, journeys, stops
+- **Integration**: Hierarchical identifiers (person → household → journey)
+- **Quality assurance**: Target variable validation, survey weighting, zero missing values
+- **Output**: Analysis-ready datasets with human-readable variable names
 
 ## Directory Structure
 
@@ -34,74 +32,77 @@ The preprocessing stage handles data cleaning, integration, and feature engineer
     └── weights.py       # Weight handling utilities
 ```
 
-## Key Features
+## Pipeline Components
 
-### Survey Weights (`weights.py`)
-VISTA uses complex weighting schemes for population representativeness:
+### Survey Weighting (`weights.py`)
+**Population representativeness** via post-stratification weights:
+- `perspoststratweight`: Individual-level analysis
+- `hhpoststratweight`: Household-level analysis  
+- `analysis_weight`: Auto-selected unified field
 
-#### Weight Types
-- **`perspoststratweight`**: Individual-level population expansion (use for person analysis)
-- **`hhpoststratweight`**: Household-level population expansion (use for household analysis)  
-- **`analysis_weight`**: Unified weight field auto-selected based on dataset type
+**Critical**: Always weight analyses. Unweighted results misrepresent Melbourne population.
 
-#### Usage Example
-```python
-# CORRECT: Weighted analysis
-weighted_avg = (df['variable'] * df['analysis_weight']).sum() / df['analysis_weight'].sum()
+### Quality Control (`validate.py`)
+**Methodological rigor**:
+- Missing value handling: Drop >80% missing columns, median imputation
+- Outlier management: IQR detection, 99th percentile capping
+- Data type standardization across all WFH variables
 
-# INCORRECT: Unweighted analysis (not population-representative)
-unweighted_avg = df['variable'].mean()
-```
+### Feature Engineering (`features.py`)
+**WFH metrics creation**:
+- Target variable: `wfh_adopter` (includes travel day workers)
+- Intensity scales: 0-7 days/week (consistent across datasets)
+- Household aggregations: Worker count, saturation, intensity averages
 
-### Data Validation (`validate.py`)
-- Column presence validation
-- Missing value handling with configurable thresholds
-- Outlier detection using IQR method
-- Value capping at 99th percentile
-
-### Data Integration (`aggregates.py`)
-- Morning travel time categorization
-- Person-level dataset creation with household attributes
-- Household-level aggregation with trip statistics
-- Work journey dataset with person characteristics
+### Integration (`aggregates.py`)
+**Multi-level dataset construction**:
+- Person-household merging with conflict resolution
+- Trip pattern aggregation to household level  
+- Journey-to-work specialized dataset creation
 
 ## Output Datasets
 
-The pipeline produces both original and ML-friendly datasets:
+**Production-ready data** with quality guarantees:
 
-### Original Datasets (VISTA variable names)
-1. `processed_person_master.csv` - Individual-level data for WFH analysis (weight: `analysis_weight`)
-2. `processed_household_master.csv` - Household profiles for clustering (weight: `analysis_weight`)
-3. `processed_journey_master.csv` - Work journey analysis (weight: `journey_weight`)
-4. `processed_morning_travel.csv` - Morning travel patterns
+### Core Datasets
+- **`processed_person_master.csv`** (4,361 workers): Individual WFH analysis
+- **`processed_household_master.csv`** (3,239 households): Clustering analysis  
+- **`processed_journey_master.csv`** (1,819 commuters): Journey correlation analysis
+- **`processed_morning_travel.csv`** (5,742 trips): Travel pattern analysis
 
-### ML-Friendly Datasets (readable variable names)
-1. `processed_person_master_readable.csv` - Person data with clear column names
-2. `processed_household_master_readable.csv` - Household data with clear column names
-3. `processed_person_master_readable_feature_dictionary.json` - Feature explanations
-4. `processed_household_master_readable_feature_dictionary.json` - Feature explanations
+### ML-Ready Versions  
+- **`*_readable.csv`**: Human-interpretable variable names
+- **`*_feature_dictionary.json`**: Complete feature documentation
 
-**For ML team**: Use the `*_readable.csv` files which transform cryptic names like `hhpoststratweight_GROUP_1` to `weight_demo_group_1` and `anzsco1` to `occupation_major_group`.
+**Variable transformation examples**:
+- `hhpoststratweight_GROUP_1` → `weight_demo_group_1`
+- `anzsco1` → `occupation_major_group`
+- `agegroup` → `age_group`
 
-All datasets include appropriate survey weights for population-representative analysis.
+### Quality Metrics
+- **Zero missing values** across all datasets
+- **Consistent data types** (all WFH variables as int64)
+- **Validated target variables** (WFH adoption consistency: 99.86%)
+- **Survey weights applied** throughout
 
 ## Usage
 
-1. Ensure raw data files are present in `00_raw_data/`
-2. Run the preprocessing pipeline:
-
-```python
-python scripts/data_integration.py
+**Execute pipeline**:
+```bash
+cd scripts && python data_integration.py
 ```
 
-3. Review validation reports in `outputs/`
+**Validation outputs**:
+- Console logs with data quality metrics
+- `data_dictionary.json` with complete dataset metadata
+- Processed datasets ready for analysis
 
-## Configuration
+## Quality Assurance
 
-Key parameters can be adjusted in `config.py`:
-- `MISSING_DROP_THRESHOLD`: Column drop threshold for missing values
-- `NUMERIC_MEDIAN_THRESHOLD`: Threshold for median imputation
+**Critical fixes implemented**:
+1. **WFH target consistency**: Resolved 10 cases where `anywfh='Yes'` but `wfh_adopter=0`
+2. **Survey weight application**: Proper weights for population representativeness  
+3. **Data type standardization**: All WFH variables converted to consistent numeric format
+4. **Duplicate column resolution**: Eliminated merge conflicts in geographic variables
 
-## Important Notes
-
-**Survey Weights**: Always use appropriate weights in analysis to ensure population representativeness. The `analysis_weight` column is pre-configured for each dataset type. Unweighted analysis will not reflect true Melbourne population patterns.
+**Result**: Publication-ready datasets with methodological rigor supporting robust analysis.
