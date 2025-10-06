@@ -8,7 +8,7 @@ Functions:
 import pandas as pd
 import config
 
-def apply_weights_to_person_data(df: pd.DataFrame) -> pd.DataFrame:
+def apply_weights_to_person_data(df):
     df_weighted = df.copy()
     if config.PERSON_WEIGHT in df_weighted.columns:
         df_weighted['weight'] = df_weighted[config.PERSON_WEIGHT]
@@ -16,7 +16,7 @@ def apply_weights_to_person_data(df: pd.DataFrame) -> pd.DataFrame:
         df_weighted['weight'] = 1.0
     return df_weighted
 
-def set_journey_analysis_weight(df: pd.DataFrame) -> pd.DataFrame:
+def set_journey_analysis_weight(df):
     if config.JOURNEY_WEIGHT in df.columns:
         df['analysis_weight'] = df[config.JOURNEY_WEIGHT]
         df['weight_source'] = config.JOURNEY_WEIGHT

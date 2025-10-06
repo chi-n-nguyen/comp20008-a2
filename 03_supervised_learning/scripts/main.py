@@ -1,0 +1,92 @@
+"""
+Work-from-Home (WFH) Prediction using Machine Learning
+======================================================
+This version uses data from 01_proprocessing folder
+
+Files used:
+- processed_household_master.csv
+- processed_person_master.csv
+- processed_journey_master.csv
+- processed_morning_travel.csv
+"""
+import os
+import sys
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from data_loader import load_and_merge_data
+from preprocessing import (
+    prepare_features, 
+    select_features, 
+    prepare_train_test_split
+)
+from models import train_random_forest, train_logistic_regression
+from evaluation import evaluate_model
+from visualization import plot_results, plot_feature_importance
+
+# Set random seed for reproducibility
+np.random.seed(42)
+
+def main():
+    """Main execution pipeline."""
+    print("\n" + "=" * 70)
+    print("WORK-FROM-HOME PREDICTION - REAL DATA ANALYSIS")
+    print("=" * 70)
+    
+    # Load data
+    household_df, person_df, journey_df, morning_df = load_and_merge_data()
+    
+    # Prepare and merge features
+    df = prepare_features(household_df, person_df, journey_df, morning_df)
+    
+    # Select and clean features
+    df_clean, label_encoders = select_features(df)
+    
+    # Split data
+    print("\n" + "="*70)
+    print("TRAIN-TEST SPLIT")
+    print("="*70)
+    X_train, X_test, y_train, y_test, scaler = prepare_train_test_split(df_clean)
+    print(f"Training set: {len(X_train)} samples")
+    print(f"Testing set: {len(X_test)} samples")
+    
+    # Train models
+    model_rf, grid_rf = train_random_forest(X_train, y_train)
+    model_lr, grid_lr = train_logistic_regression(X_train, y_train)
+    
+    # Evaluate models
+    results_rf = evaluate_model(model_rf, X_test, y_test, "Random Forest")
+    results_lr = evaluate_model(model_lr, X_test, y_test, "Logistic Regression")
+    
+    # Compare models
+    print("\n" + "=" * 70)
+    print("FINAL MODEL COMPARISON")
+    print("=" * 70)
+    
+    comparison_df = pd.DataFrame({
+        'Metric': ['F1-Score', 'ROC-AUC'],
+        'Random Forest': [
+           results_rf['f1_score'], results_rf['roc_auc']
+        ],
+        'Logistic Regression': [
+            results_lr['f1_score'], results_lr['roc_auc']
+        ]
+    })
+    
+    comparison_df['Difference'] = comparison_df['Logistic Regression'] - comparison_df['Random Forest']
+    print("\n", comparison_df.to_string(index=False))
+    
+    # Visualizations
+    print("\n" + "="*70)
+    print("GENERATING VISUALIZATIONS")
+    print("="*70)
+    plot_results(results_rf, results_lr, y_test)
+    plot_feature_importance(model_rf, model_lr, X_train.columns)
+    
+    print("\n" + "=" * 70)
+    print("ANALYSIS COMPLETE!")
+    print("=" * 70)
+
+if __name__ == "__main__":
+    main()

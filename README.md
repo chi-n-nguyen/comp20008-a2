@@ -1,8 +1,8 @@
-# Working From Home and Household Travel Behavior Analysis
+# Working From Home Adoption Analysis
 
 ## **Research Question**
 
-**"What factors predict working-from-home (WFH) adoption, and how do WFH patterns reshape household travel behavior?"**
+**"What factors predict working-from-home (WFH) adoption?"**
 
 ## **Team Members**
 
@@ -15,7 +15,7 @@
 
 ## **Project Overview**
 
-This project analyzes VISTA 2023-2024 travel survey data to understand the factors that influence working-from-home (WFH) adoption and how these patterns affect household travel behavior in Melbourne. The analysis combines multiple statistical and machine learning approaches to provide comprehensive insights into post-pandemic work and travel patterns.
+This project analyzes VISTA 2023-2024 travel survey data to understand the factors that influence working-from-home (WFH) adoption in Melbourne. The analysis combines statistical correlation analysis, machine learning models, and household clustering to identify key predictors of remote work adoption.
 
 ## **Project Structure**
 
@@ -29,10 +29,10 @@ comp20008-a2/
 │   ├── journey_to_work_vista_2023_2024.csv
 │   └── journey_to_education_vista_2023_2024.csv
 ├── 01_preprocessing/               # Data cleaning and feature engineering
+│   ├── README.md                   # Preprocessing pipeline documentation
 │   ├── scripts/
 │   │   ├── initial_assessment.py
-│   │   ├── data_integration.py          # Orchestrator (modular)
-│   │   ├── data_integration_legacy.py   # Previous monolith (kept temporarily)
+│   │   ├── data_integration.py     # Main pipeline orchestrator
 │   │   ├── config.py
 │   │   ├── features.py
 │   │   ├── aggregates.py
@@ -47,10 +47,28 @@ comp20008-a2/
 │       ├── data_dictionary.json
 │       └── integration_validation_report.txt
 ├── 02_correlation_analysis/        # Statistical correlation analysis
+│   ├── scripts/
+│   │   ├── Agegroup_WFH_Correlation.py    # Age group vs WFH intensity
+│   │   └── Occupation_WFH_Correlation.py  # Occupation vs WFH adoption
+│   └── outputs/
+│       ├── adoption_and_intensity.png
+│       └── age_group_vs_wfh_intensity_nmi_original.png
 ├── 03_supervised_learning/         # Machine learning models
+│   ├── scripts/
+│   │   └── wfh_prediction.py       # WFH prediction models
+│   └── outputs/
+│       ├── feature_importance.png
+│       └── wfh_prediction_results.png
 ├── 04_clustering_analysis/         # Unsupervised learning and segmentation
-├── 05_visualisation/              # Final visualizations and plots
-├── 06_documentation/              # Reports and documentation
+│   ├── README.md                   # Clustering analysis documentation
+│   ├── scripts/
+│   │   ├── household_wfh_clustering.py     # Main clustering implementation
+│   │   └── geographic_cluster_analysis.py  # Geographic distribution analysis
+│   └── outputs/
+│       ├── cluster_optimization.png
+│       ├── household_clusters_pca.png
+│       ├── cluster_profiles_heatmap.png
+│       └── geographic_cluster_*.png
 └── README.md
 ```
 
@@ -82,24 +100,24 @@ VISTA data includes expansion weights to ensure population representativeness:
 - Data integration across multiple tables
 
 ### 2. Correlation Analysis
-- Statistical relationships between demographics and WFH adoption
-- Commute characteristics vs WFH frequency analysis
-- Household factors vs travel behavior correlations
+- **Age Group vs WFH Intensity**: Normalized Mutual Information analysis of age demographics and WFH frequency
+- **Occupation vs WFH Adoption**: Chi-square test examining professional categories and remote work patterns
+- Statistical relationships using weighted survey data with post-stratification weights
 
 ### 3. Supervised Learning
-- Binary classification for WFH adoption prediction
-- Regression models for WFH intensity prediction
-- Feature importance analysis
+- **WFH Prediction Models**: Machine learning algorithms for predicting remote work adoption
+- Feature importance analysis identifying key demographic and travel predictors
+- Model performance comparison and evaluation metrics
 
 ### 4. Clustering Analysis
-- Household WFH profile segmentation
-- Travel behavior pattern clustering
-- Geographic and demographic clustering
+- **Household WFH Profile Segmentation**: K-means clustering to identify distinct household WFH adoption patterns
+- **Geographic Distribution Analysis**: Spatial clustering patterns across Melbourne regions
+- **Travel Behavior Profiling**: Cluster-based analysis of travel pattern changes linked to WFH adoption
 
 ### 5. Visualization
-- Comprehensive data overview plots
-- Statistical analysis visualizations
-- Model performance and results visualization
+- Statistical correlation heatmaps and distribution plots
+- Model performance visualizations and feature importance charts
+- WFH adoption patterns across demographic groups
 
 ## **Key Features Analyzed**
 
@@ -137,25 +155,45 @@ VISTA data includes expansion weights to ensure population representativeness:
    python data_integration.py
    ```
 
-## **How to Produce Integration Outputs**
+## **Running Analysis Components**
 
-To generate all cleaned and integrated datasets used by the team:
-
+### Data Preprocessing
+Generate all cleaned and integrated datasets:
 ```bash
 cd 01_preprocessing/scripts
 python data_integration.py
 ```
 
-This will create the following files in `01_preprocessing/outputs/`:
-- `processed_person_master.csv`
-- `processed_household_master.csv`
-- `processed_journey_master.csv`
-- `processed_morning_travel.csv`
-- `data_dictionary.json`
-- `integration_validation_report.txt`
+### Correlation Analysis
+Run statistical correlation analyses:
+```bash
+cd 02_correlation_analysis/scripts
+python Agegroup_WFH_Correlation.py     # Age group vs WFH intensity
+python Occupation_WFH_Correlation.py   # Occupation vs WFH adoption
+```
 
-Optional (faster I/O): install Parquet support to also save `.parquet` files
+### Supervised Learning
+Execute machine learning models:
+```bash
+cd 03_supervised_learning/scripts
+python wfh_prediction.py               # WFH prediction models
+```
 
+### Clustering Analysis
+Run unsupervised learning analysis:
+```bash
+cd 04_clustering_analysis/scripts
+python household_wfh_clustering.py     # Household clustering
+python geographic_cluster_analysis.py  # Geographic distribution
+```
+
+### Output Files Generated
+- **Preprocessing**: `processed_person_master.csv`, `processed_household_master.csv`, `processed_journey_master.csv`, `processed_morning_travel.csv`
+- **Correlation**: `adoption_and_intensity.png`, `age_group_vs_wfh_intensity_nmi_original.png`
+- **ML Models**: `feature_importance.png`, `wfh_prediction_results.png`
+- **Clustering**: `cluster_optimization.png`, `household_clusters_pca.png`, `cluster_profiles_heatmap.png`, `geographic_cluster_distribution.png`
+
+Optional (faster I/O): install Parquet support
 ```bash
 pip install pyarrow
 ```

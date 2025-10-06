@@ -12,12 +12,10 @@ Usage:
 import pandas as pd
 import os
 import warnings
-from typing import Dict, Optional, List, Any
 import matplotlib.pyplot as plt
 
 # =====================================
-# Research Question: "What factors predict working-from-home (WFH) adoption, 
-# and how do WFH patterns reshape household travel behavior?"
+# Research Question: "What factors predict working-from-home (WFH) adoption?"
 # Responsible: Nhat Chi Nguyen, 1492182
 # =====================================
 
@@ -26,7 +24,7 @@ def load_vista_datasets() -> Dict[str, Optional[pd.DataFrame]]:
     
     print("="*70)
     print("VISTA 2023-2024 DATASET LOADING")
-    print("Research Question: WFH adoption factors and household travel behavior")
+    print("Research Question: WFH adoption factors")
     print("="*70)
     
     # Create outputs directory

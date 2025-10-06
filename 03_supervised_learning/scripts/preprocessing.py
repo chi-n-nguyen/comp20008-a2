@@ -1,0 +1,157 @@
+"""
+preprocessing.py
+================
+Module for data preprocessing, feature engineering, and preparation.
+"""
+
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+
+def prepare_features(household_df, person_df, journey_df, morning_df):
+    """
+    Merge datasets and create features for modeling.
+    """
+    print("\n" + "="*70)
+    print("PREPARING FEATURES")
+    print("="*70)
+    
+    # Start with person-level data
+    df = person_df.copy()
+    
+    # identify ID columns
+    household_id_cols = ['hhid']
+    person_id_cols = ['persid']
+    
+    # Merge with household data 
+    if household_id_cols:
+        try:
+            # Try first household ID column found
+            key_col = household_id_cols[0]
+            if key_col in df.columns and key_col in household_df.columns:
+                df = df.merge(household_df, on=key_col, how='left', suffixes=('', '_hh'))
+                print(f"- Merged household data on '{key_col}'")
+        except Exception as e:
+            print(f"Could not merge household data: {e}")
+    
+    # Merge journey-level features 
+    journey_merge_keys = [col for col in person_id_cols + household_id_cols if col in journey_df.columns]
+    if journey_merge_keys:
+        preferred_key = next((key for key in person_id_cols if key in journey_merge_keys), None)
+        if preferred_key:
+            key_col = preferred_key
+        else:
+            key_col = journey_merge_keys[0]
+        try:
+            key_col = journey_merge_keys[0] 
+            if key_col in df.columns:
+                df = df.merge(journey_df, on=key_col, how='left', suffixes=('', '_journey'))
+                print(f"- Merged household data on '{key_col}'")
+        except Exception as e:
+            print(f"Could not merge household data: {e}")
+    
+    return df
+
+def select_features(df):
+    """
+    Select relevant features for modeling.
+    Automatically detects numeric and categorical features.
+    """
+    print("\n" + "="*70)
+    print("FEATURE SELECTION")
+    print("="*70)
+    
+    # Ensure we have the target variable
+    if 'wfh_adopter' not in df.columns:
+        raise ValueError("Target variable 'wfh_adopter' not found.")
+    
+    # Separate features and target
+    target = 'wfh_adopter'
+    
+    # Exclude non-feature columns 
+    exclude_keywords = ['id', 'wfh', 'works_from_home', target]
+    
+    feature_cols = [col for col in df.columns 
+                   if col != target 
+                   and not any(keyword in col.lower() for keyword in exclude_keywords)]
+    
+    # Separate numeric and categorical
+    numeric_features = df[feature_cols].select_dtypes(include=[np.number]).columns.tolist()
+    categorical_features = df[feature_cols].select_dtypes(include=['object', 'category']).columns.tolist()
+    
+    print(f"  - Numeric features: {len(numeric_features)}")
+    print(f"  - Categorical features: {len(categorical_features)}")
+    
+    # Handle missing values
+    print("\nHandling missing values...")
+    df_clean = df[feature_cols + [target]].copy()
+    
+    # Fill numeric missing values with median
+    for col in numeric_features:
+        if df_clean[col].isnull().sum() > 0:
+            df_clean[col] = df_clean[col].fillna(df_clean[col].median())
+    
+    # Fill categorical missing values with mode
+    for col in categorical_features:
+        if df_clean[col].isnull().sum() > 0:
+            df_clean[col] = df_clean[col].fillna(df_clean[col].mode()[0] if len(df_clean[col].mode()) > 0 else 'Unknown')
+    
+    # Encode categorical variables
+    print("\nEncoding categorical variables...")
+    label_encoders = {}
+    for col in categorical_features:
+        try:
+            le = LabelEncoder()
+            df_clean[col] = le.fit_transform(df_clean[col].astype(str))
+            label_encoders[col] = le
+        except Exception as e:
+            print(f"Could not encode column '{col}': {e}")
+            # Drop problematic column
+            df_clean = df_clean.drop(columns=[col])
+    
+    # Remove any remaining rows with missing target
+    df_clean = df_clean.dropna(subset=[target])
+    
+    # Check if we have enough data
+    if len(df_clean) < 100:
+        raise ValueError(f"Not enough data after cleaning: {len(df_clean)} rows. Need at least 100.")
+    
+    print(f"\nFinal dataset shape after cleaning: {df_clean.shape}")
+    print(f"WFH distribution:")
+    print(df_clean[target].value_counts())
+    print(f"WFH percentage: {df_clean[target].mean()*100:.1f}%")
+    
+    return df_clean, label_encoders
+
+
+def prepare_train_test_split(df, target_col='wfh_adopter', test_size=0.2):
+    """
+    Split data into training and testing sets.
+    """
+    X = df.drop(columns=[target_col])
+    y = df[target_col]
+    
+    # Check for class imbalance
+    class_counts = y.value_counts()
+    print(f"\nClass distribution:")
+    print(class_counts)
+    
+    if len(class_counts) < 2:
+        raise ValueError("Target variable must have at least 2 classes!")
+    
+    # Stratified split to maintain class distribution
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, random_state=42, stratify=y
+    )
+    
+    # Scale features
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+    
+    # Convert back to DataFrame
+    X_train_scaled = pd.DataFrame(X_train_scaled, columns=X_train.columns, index=X_train.index)
+    X_test_scaled = pd.DataFrame(X_test_scaled, columns=X_test.columns, index=X_test.index)
+    
+    return X_train_scaled, X_test_scaled, y_train, y_test, scaler
