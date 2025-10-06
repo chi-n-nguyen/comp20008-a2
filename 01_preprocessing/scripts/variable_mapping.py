@@ -97,7 +97,23 @@ VARIABLE_MAPPING = {
     'avg_wfh_intensity': 'avg_household_wfh_intensity',
     'max_wfh_intensity': 'max_household_wfh_intensity',
     'total_workers': 'num_working_members',
-    'hh_wfh_saturation': 'household_wfh_saturation'
+    'hh_wfh_saturation': 'household_wfh_saturation',
+    
+    # Missing data indicators (created during preprocessing)
+    'avg_wfh_intensity_missing': 'has_missing_wfh_intensity_data',
+    'max_wfh_intensity_missing': 'has_missing_max_wfh_data',
+    'total_trips_missing': 'has_missing_trip_count_data',
+    'avg_trip_duration_missing': 'has_missing_trip_duration_data',
+    'avg_start_hour_missing': 'has_missing_trip_timing_data'
+}
+
+# Feature descriptions for missing data indicators
+MISSING_INDICATOR_DESCRIPTIONS = {
+    'has_missing_wfh_intensity_data': 'Binary indicator (1/0) - 1 if household had missing WFH intensity data, 0 if complete',
+    'has_missing_max_wfh_data': 'Binary indicator (1/0) - 1 if household had missing max WFH data, 0 if complete', 
+    'has_missing_trip_count_data': 'Binary indicator (1/0) - 1 if household had missing trip count data, 0 if complete',
+    'has_missing_trip_duration_data': 'Binary indicator (1/0) - 1 if household had missing trip duration data, 0 if complete',
+    'has_missing_trip_timing_data': 'Binary indicator (1/0) - 1 if household had missing trip start time data, 0 if complete'
 }
 
 # Category mappings for better readability
