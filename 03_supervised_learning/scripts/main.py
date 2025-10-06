@@ -25,9 +25,6 @@ from models import train_random_forest, train_logistic_regression
 from evaluation import evaluate_model
 from visualization import plot_results, plot_feature_importance
 
-# Set random seed for reproducibility
-np.random.seed(42)
-
 def main():
     """Main execution pipeline."""
     print("\n" + "=" * 70)
@@ -85,7 +82,7 @@ def main():
     plot_feature_importance(model_rf, model_lr, X_train.columns)
     
     print("\n" + "=" * 70)
-    print("ANALYSIS COMPLETE!")
+    print("ANALYSIS COMPLETE")
     print("=" * 70)
 
 if __name__ == "__main__":
