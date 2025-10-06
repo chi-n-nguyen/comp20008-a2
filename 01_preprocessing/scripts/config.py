@@ -5,7 +5,6 @@
 - Imported by other modules to avoid hard-coded literals
 """
 
-from typing import Dict
 
 # Paths
 RAW_DIR = "../../00_raw_data"
@@ -30,7 +29,7 @@ PERSON_WEIGHT = 'perspoststratweight'
 JOURNEY_WEIGHT = 'journey_weight'
 
 # Mappings
-WFH_MAPPING: Dict[str, int] = {
+WFH_MAPPING = {
     'Yes': 1, 'Y': 1,
     'No': 0, 'N': 0,
     'Not in Work Force': 0,

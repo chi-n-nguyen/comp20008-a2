@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 # Responsible: Nhat Chi Nguyen, 1492182
 # =====================================
 
-def load_vista_datasets() -> Dict[str, Optional[pd.DataFrame]]:
+def load_vista_datasets():
     """Load all VISTA 2023-2024 datasets with proper error handling"""
     
     print("="*70)
@@ -31,7 +31,7 @@ def load_vista_datasets() -> Dict[str, Optional[pd.DataFrame]]:
     os.makedirs('../../01_preprocessing/outputs', exist_ok=True)
     
     # Dataset file paths - corrected to match actual structure
-    datasets: Dict[str, Optional[pd.DataFrame]] = {}
+    datasets = {}
     file_paths = {
         'household': '../../00_raw_data/household_vista_2023_2024.csv',
         'person': '../../00_raw_data/person_vista_2023_2024.csv', 
@@ -64,7 +64,7 @@ def load_vista_datasets() -> Dict[str, Optional[pd.DataFrame]]:
     
     return datasets
 
-def immediate_data_quality_assessment(datasets: Dict[str, pd.DataFrame]) -> None:
+def immediate_data_quality_assessment(datasets):
     """Immediate data quality assessment including expansion weights analysis"""
     
     print("\n" + "="*70)
@@ -132,7 +132,7 @@ def immediate_data_quality_assessment(datasets: Dict[str, pd.DataFrame]) -> None
                 print(f"Socioeconomic columns found: {len(socio_cols)}")
                 print(f"Sample: {socio_cols[:5]}")
 
-def analyze_dataset_relationships(datasets: Dict[str, pd.DataFrame]) -> None:
+def analyze_dataset_relationships(datasets):
     """Analyze relationships between datasets for integration planning"""
     
     print("\n" + "="*70)
@@ -181,7 +181,7 @@ def analyze_dataset_relationships(datasets: Dict[str, pd.DataFrame]) -> None:
             print(f"People in work_journeys_df: {len(work_person_ids):,}")
             print(f"Working people overlap: {work_overlap:,}")
 
-def preview_key_variables(datasets: Dict[str, pd.DataFrame]) -> None:
+def preview_key_variables(datasets):
     """Preview key variables for WFH research"""
     
     print("\n" + "="*70)
@@ -224,7 +224,7 @@ def preview_key_variables(datasets: Dict[str, pd.DataFrame]) -> None:
         if travel_cols:
             print(f"Travel variables: {travel_cols[:5]}")
 
-def analyze_expansion_weights(datasets: Dict[str, pd.DataFrame]) -> None:
+def analyze_expansion_weights(datasets):
     """Analyze expansion weights across datasets"""
     
     print("\n" + "="*70)
@@ -262,7 +262,7 @@ def analyze_expansion_weights(datasets: Dict[str, pd.DataFrame]) -> None:
         print(f"Weighted journey population: {total_weighted_journeys:,.0f}")
         print(f"Average expansion factor: {total_weighted_journeys/unweighted_count:.2f}")
 
-def create_data_overview_plot(datasets: Dict[str, Optional[pd.DataFrame]]) -> None:
+def create_data_overview_plot(datasets):
     """Create initial data overview visualization"""
     
     plt.style.use('default')
@@ -273,8 +273,8 @@ def create_data_overview_plot(datasets: Dict[str, Optional[pd.DataFrame]]) -> No
     colors = ['#E74C3C', '#3498DB', '#2ECC71', '#F39C12', '#9B59B6', '#1ABC9C']
     
     # Dataset sizes
-    dataset_names: List[str] = []
-    dataset_sizes: List[int] = []
+    dataset_names = []
+    dataset_sizes = []
     for name, df in datasets.items():
         if df is not None:
             dataset_names.append(name.replace('_', ' ').title())
@@ -292,7 +292,7 @@ def create_data_overview_plot(datasets: Dict[str, Optional[pd.DataFrame]]) -> No
     
     # Missing data analysis for key datasets
     key_datasets = ['household', 'person']
-    missing_data: List[float] = []
+    missing_data = []
     for name in key_datasets:
         df = datasets.get(name)
         if df is not None:
@@ -334,7 +334,7 @@ def create_data_overview_plot(datasets: Dict[str, Optional[pd.DataFrame]]) -> No
             text.set_fontweight('bold')
     
     # Memory usage by dataset
-    memory_usage: List[float] = []
+    memory_usage = []
     for name, df in datasets.items():
         if df is not None:
             memory_mb = df.memory_usage(deep=True).sum() / (1024**2)
@@ -359,7 +359,7 @@ def create_data_overview_plot(datasets: Dict[str, Optional[pd.DataFrame]]) -> No
     
 
 
-def main() -> Dict[str, Optional[pd.DataFrame]]:
+def main():
     """Main execution function for initial dataset assessment"""
     
     

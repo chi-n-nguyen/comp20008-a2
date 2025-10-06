@@ -10,7 +10,6 @@ import os
 import json
 import warnings
 import pandas as pd
-from typing import Dict, Optional, Any
 
 import config
 from features import create_wfh_features, create_household_wfh_metrics
@@ -25,7 +24,7 @@ from weights import apply_weights_to_person_data
 from variable_mapping import save_readable_dataset, get_ml_ready_features
 
 
-def load_vista_datasets() -> Dict[str, Optional[pd.DataFrame]]:
+def load_vista_datasets():
     print("=" * 70)
     print("VISTA 2023-2024 DATA INTEGRATION PIPELINE")
     print("Research Question: WFH adoption factors")
@@ -33,7 +32,7 @@ def load_vista_datasets() -> Dict[str, Optional[pd.DataFrame]]:
 
     os.makedirs(config.OUTPUT_DIR, exist_ok=True)
 
-    datasets: Dict[str, Optional[pd.DataFrame]] = {}
+    datasets = {}
     print("Loading datasets...")
     print("-" * 50)
     for name, path in config.FILENAMES.items():
@@ -54,7 +53,7 @@ def load_vista_datasets() -> Dict[str, Optional[pd.DataFrame]]:
     return datasets
 
 
-def main() -> None:
+def main():
     # Load
     datasets = load_vista_datasets()
 
@@ -149,7 +148,7 @@ def main() -> None:
         print(f"Parquet save skipped or failed: {e}")
 
     # Data dictionary
-    data_dict: Dict[str, Dict[str, Any]] = {
+    data_dict = {
         'person_master': {
             'rows': len(person_master_clean),
             'columns': person_master_clean.columns.tolist(),
