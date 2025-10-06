@@ -1,0 +1,150 @@
+"""
+visualization.py
+================
+Module for creating visualizations of model results.
+"""
+
+import os
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import roc_curve
+
+def get_output_directory():
+    """
+    Determine the correct output directory based on where script is run from.
+    Always saves to 03_supervised_learning/outputs/
+    """
+    
+    # Possible output locations
+    possible_outputs = [
+        '03_supervised_learning/outputs/',  # From project root
+        'outputs/',  # From 03_supervised_learning folder
+    ]
+    
+    # Try to create/find the output directory
+    for output_dir in possible_outputs:
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+            # Test if we can write to this directory
+            test_file = os.path.join(output_dir, '.test')
+            with open(test_file, 'w') as f:
+                f.write('test')
+            os.remove(test_file)
+            return output_dir
+        except:
+            continue
+    
+    # Fallback: current directory
+    return ''
+
+def plot_results(results_rf, results_lr, y_test):
+    """Create comprehensive visualizations."""
+    fig = plt.figure(figsize=(18, 12))
+    
+    # Confusion Matrices
+    ax1 = plt.subplot(2, 3, 1)
+    sns.heatmap(results_rf['confusion_matrix'], annot=True, fmt='d', cmap='Blues', 
+                xticklabels=['Non-WFH', 'WFH'], yticklabels=['Non-WFH', 'WFH'])
+    plt.title('Random Forest - Confusion Matrix', fontsize=12, fontweight='bold')
+    plt.ylabel('Actual')
+    plt.xlabel('Predicted')
+    
+    ax2 = plt.subplot(2, 3, 2)
+    sns.heatmap(results_lr['confusion_matrix'], annot=True, fmt='d', cmap='Greens',
+                xticklabels=['Non-WFH', 'WFH'], yticklabels=['Non-WFH', 'WFH'])
+    plt.title('Logistic Regression - Confusion Matrix', fontsize=12, fontweight='bold')
+    plt.ylabel('Actual')
+    plt.xlabel('Predicted')
+    
+    # Metrics Comparison
+    ax3 = plt.subplot(2, 3, 3)
+    metrics = ['F1-Score']
+    rf_scores = [results_rf['f1_score']]
+    lr_scores = [results_lr['f1_score']]
+    
+    x = np.arange(len(metrics))
+    width = 0.35
+    ax3.bar(x - width/2, rf_scores, width, label='Random Forest', color='steelblue')
+    ax3.bar(x + width/2, lr_scores, width, label='Logistic Regression', color='seagreen')
+    ax3.set_ylabel('Score')
+    ax3.set_title('Model Performance Comparison', fontsize=12, fontweight='bold')
+    ax3.set_xticks(x)
+    ax3.set_xticklabels(metrics, rotation=45, ha='right')
+    ax3.legend()
+    ax3.set_ylim([0, 1])
+    ax3.grid(axis='y', alpha=0.3)
+    
+    # ROC Curves
+    ax4 = plt.subplot(2, 3, 4)
+    fpr_rf, tpr_rf, _ = roc_curve(y_test, results_rf['y_pred_proba'])
+    fpr_lr, tpr_lr, _ = roc_curve(y_test, results_lr['y_pred_proba'])
+    
+    ax4.plot(fpr_rf, tpr_rf, label=f"Random Forest (AUC={results_rf['roc_auc']:.3f})", 
+             color='steelblue', linewidth=2)
+    ax4.plot(fpr_lr, tpr_lr, label=f"Logistic Regression (AUC={results_lr['roc_auc']:.3f})", 
+             color='seagreen', linewidth=2)
+    ax4.plot([0, 1], [0, 1], 'k--', label='Random Classifier')
+    ax4.set_xlabel('False Positive Rate')
+    ax4.set_ylabel('True Positive Rate')
+    ax4.set_title('ROC Curves Comparison', fontsize=12, fontweight='bold')
+    ax4.legend()
+    ax4.grid(alpha=0.3)
+
+    # Prediction Distribution
+    ax5 = plt.subplot(2, 3, 5)
+    ax5.hist(results_rf['y_pred_proba'], bins=30, alpha=0.6, label='Random Forest', color='steelblue')
+    ax5.hist(results_lr['y_pred_proba'], bins=30, alpha=0.6, label='Logistic Regression', color='seagreen')
+    ax5.set_xlabel('Predicted Probability')
+    ax5.set_ylabel('Frequency')
+    ax5.set_title('Prediction Probability Distribution', fontsize=12, fontweight='bold')
+    ax5.legend()
+    ax5.grid(alpha=0.3)
+
+    plt.tight_layout()
+    
+    # Create output path relative to script location
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_dir = os.path.join(os.path.dirname(script_dir), "outputs")
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, "wfh_prediction_results.png")
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.show()
+
+def plot_feature_importance(model_rf, model_lr, feature_names, top_n=15):
+    """Plot feature importance for both models."""
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+    
+    # Random Forest
+    importance_rf = pd.DataFrame({
+        'feature': feature_names,
+        'importance': model_rf.feature_importances_
+    }).sort_values('importance', ascending=False).head(top_n)
+    
+    ax1.barh(importance_rf['feature'], importance_rf['importance'], color='steelblue')
+    ax1.set_xlabel('Importance')
+    ax1.set_title(f'Random Forest - Top {top_n} Features', fontsize=12, fontweight='bold')
+    ax1.invert_yaxis()
+    
+    # Logistic Regression
+    importance_lr = pd.DataFrame({
+        'feature': feature_names,
+        'coefficient': model_lr.coef_[0],
+        'abs_coefficient': np.abs(model_lr.coef_[0])
+    }).sort_values('abs_coefficient', ascending=False).head(top_n)
+    
+    colors = ['seagreen' if x > 0 else 'coral' for x in importance_lr['coefficient']]
+    ax2.barh(importance_lr['feature'], importance_lr['abs_coefficient'], color=colors)
+    ax2.set_xlabel('Absolute Coefficient')
+    ax2.set_title(f'Logistic Regression - Top {top_n} Features\n(Green=Positive, Red=Negative)', 
+                  fontsize=12, fontweight='bold')
+    ax2.invert_yaxis()
+
+    # Create output path relative to script location
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_dir = os.path.join(os.path.dirname(script_dir), "outputs")
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, "feature_importance.png")
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.show()

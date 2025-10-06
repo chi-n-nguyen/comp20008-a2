@@ -1,0 +1,130 @@
+"""
+data_loader.py
+==============
+Module for loading household travel survey data.
+"""
+
+import os
+import sys
+import pandas as pd
+import numpy as np
+
+# Add the preprocessing directory to path to import variable mapping
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../01_preprocessing/scripts")))
+
+def import_variable_mapping():
+    """
+    Import the variable_mapping module from 01_preprocessing/scripts.
+    """
+    # Get the directory where this script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Go up to project root and then to preprocessing scripts
+    project_root = os.path.dirname(os.path.dirname(script_dir))
+    preprocessing_scripts = os.path.join(project_root, "01_preprocessing", "scripts")
+    
+    # Add to Python path if not already there
+    if preprocessing_scripts not in sys.path:
+        sys.path.insert(0, preprocessing_scripts)
+    try:
+        import variable_mapping
+        return variable_mapping
+    except ImportError as e:
+        print(f"Could not import variable_mapping: {e}")
+        return None
+
+def create_readable_columns(df):
+    """
+    Apply readable column names.
+    Falls back to returning original DataFrame if mapping not available.
+    
+    Args:
+        df: DataFrame with original column names
+        
+    Returns:
+        DataFrame with readable column names (or original if mapping unavailable)
+    """
+    # Try to use variable_mapping module
+    variable_mapping = import_variable_mapping()
+    
+    if variable_mapping is not None:
+        # Check what's available in the module
+        if hasattr(variable_mapping, 'VARIABLE_MAPPING'):
+            mapping = variable_mapping.VARIABLE_MAPPING
+            df = df.rename(columns=mapping)
+            return df
+        if hasattr(variable_mapping, 'CATEGORY_MAPPINGS'):
+            mapping = variable_mapping.CATEGORY_MAPPINGS
+            df = df.rename(columns=mapping)
+            return df
+        elif hasattr(variable_mapping, 'get_readable_names'):
+            mapping = variable_mapping.get_readable_names()
+            df = df.rename(columns=mapping)
+            return df
+        elif hasattr(variable_mapping, 'rename_columns'):
+            return variable_mapping.rename_columns(df)
+    
+    # If no mapping available, just return original
+    print("No variable mapping applied, using original column names")
+    return df
+
+def load_and_merge_data():
+    """
+    Load and merge household travel survey data.
+    
+    Returns:
+        tuple: (household_df, person_df, journey_df, morning_df)
+    """
+    # Get the directory where this script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Go up to the project root and then to preprocessing outputs
+    project_root = os.path.dirname(os.path.dirname(script_dir))
+    data_path = os.path.join(project_root, "01_preprocessing", "outputs")
+    
+    print(f"Looking for data in: {os.path.abspath(data_path)}")
+    
+    # Check if readable versions exist, otherwise use regular versions
+    files_to_load = {
+        'household': 'processed_household_master_readable',
+        'person': 'processed_person_master_readable',
+        'journey': 'processed_journey_master',
+        'morning': 'processed_morning_travel'
+    }
+    loaded_data = {}
+    
+    try:
+        for key, base_filename in files_to_load.items():
+            # Try readable version first
+            readable_file = os.path.join(data_path, f'{base_filename}_readable.csv')
+            regular_file = os.path.join(data_path, f'{base_filename}.csv')
+            
+            if os.path.exists(readable_file):
+                loaded_data[key] = pd.read_csv(readable_file)
+            elif os.path.exists(regular_file):
+                df = pd.read_csv(regular_file)
+                # Apply readable column transformation
+                loaded_data[key] = create_readable_columns(df)
+            else:
+                raise FileNotFoundError(
+                    f"Could not find {base_filename}.csv or {base_filename}_readable.csv in {data_path}"
+                )
+        
+        household_df = loaded_data['household']
+        person_df = loaded_data['person']
+        journey_df = loaded_data['journey']
+        morning_df = loaded_data['morning']
+        
+        print(f"\nSuccessfully loaded all data files:")
+        return household_df, person_df, journey_df, morning_df
+        
+    except FileNotFoundError as e:
+        print(f"\nError: {e}")
+        raise
+
+if __name__ == "__main__":
+    try:
+        household_df, person_df, journey_df, morning_df = load_and_merge_data()
+        print("\nData loading test successful!")
+    except Exception as e:
+        print(f"\nTest failed: {e}")
