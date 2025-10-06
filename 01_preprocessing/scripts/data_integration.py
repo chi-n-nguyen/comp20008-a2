@@ -136,16 +136,6 @@ def main():
         morning_travel.to_csv(f"{config.OUTPUT_DIR}/processed_morning_travel.csv", index=False)
         print(f"Saved: processed_morning_travel.csv ({morning_travel.shape})")
 
-    # Parquet optional
-    try:
-        person_master_clean.to_parquet(f"{config.OUTPUT_DIR}/processed_person_master.parquet", index=False)
-        household_master_clean.to_parquet(f"{config.OUTPUT_DIR}/processed_household_master.parquet", index=False)
-        journey_master_clean.to_parquet(f"{config.OUTPUT_DIR}/processed_journey_master.parquet", index=False)
-        if not morning_travel.empty:
-            morning_travel.to_parquet(f"{config.OUTPUT_DIR}/processed_morning_travel.parquet", index=False)
-        print("Saved Parquet versions of processed datasets")
-    except Exception as e:
-        print(f"Parquet save skipped or failed: {e}")
 
     # Data dictionary
     data_dict = {
