@@ -9,3 +9,6 @@ env/
 **/__pycache__/
 *.pyc
 
+
+# clustering outputs
+04_clustering_analysis/outputs/
