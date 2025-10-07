@@ -6,6 +6,12 @@ from pathlib import Path
 import math
 import os
 
+# This script uses the journey dataset to analyze three commute-related factors 
+# (main journey mode, journey travel time, and journey purpose). 
+# For each factor, it calculates the Normalized Mutual Information (NMI) 
+# with WFH adoption (0 or 1) and identifies which factor shows the strongest association with WFH adoption.
+
+
 # Path settings
 script_dir = os.path.dirname(os.path.abspath(__file__))  
 output_dir = Path(os.path.join(script_dir, "../outputs")) 

@@ -6,6 +6,11 @@ from pathlib import Path
 import math
 import os
 
+# This script analyzes two person-related factors (occupation and age group) 
+# and calculates their Normalized Mutual Information (NMI) with WFH adoption (Yes/No). 
+# It then identifies which factor shows the strongest association with WFH adoption.
+
+
 # Get current script directory and define output directory path
 script_dir = os.path.dirname(os.path.abspath(__file__))  
 output_dir = Path(os.path.join(script_dir, "../outputs")) 
