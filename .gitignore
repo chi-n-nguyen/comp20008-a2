@@ -1,2 +1,14 @@
 __pycache__/
 *.pyc
+
+# Ignore virtual environments
+.venv/
+venv/
+ENV/
+env/
+**/__pycache__/
+*.pyc
+
+
+# clustering outputs
+04_clustering_analysis/outputs/
