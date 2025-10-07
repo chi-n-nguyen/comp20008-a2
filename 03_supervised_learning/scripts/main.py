@@ -20,10 +20,9 @@ from data_loader import load_and_merge_data
 from preprocessing import (
     prepare_features, 
     select_features, 
-    prepare_train_test_split
 )
 from models import train_random_forest, train_logistic_regression
-from evaluation import evaluate_model
+from evaluation import evaluate_model, prepare_train_test_split
 from visualization import plot_results, plot_feature_importance
 
 def main():
