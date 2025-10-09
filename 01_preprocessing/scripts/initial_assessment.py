@@ -261,7 +261,7 @@ def create_data_overview_plot(datasets):
     """Create initial data overview visualization"""
     
     plt.style.use('default')
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18, 6))
     fig.suptitle('VISTA 2023-2024 Dataset Overview', fontsize=18, fontweight='bold', y=0.98)
     
     # Define vibrant color palette
@@ -285,27 +285,25 @@ def create_data_overview_plot(datasets):
         ax1.text(bar.get_x() + bar.get_width()/2, v + max(dataset_sizes)*0.01, 
                 f'{v:,}', ha='center', va='bottom', fontsize=10, fontweight='bold')
     
-    # Missing data analysis for key datasets
-    key_datasets = ['household', 'person']
+    # Missing data analysis for all loaded datasets
     missing_data = []
-    for name in key_datasets:
-        df = datasets.get(name)
+    missing_dataset_names = []
+    for name, df in datasets.items():
         if df is not None:
             missing_pct = (df.isnull().sum().sum() / (df.shape[0] * df.shape[1])) * 100
             missing_data.append(missing_pct)
-        else:
-            missing_data.append(0)
+            missing_dataset_names.append(name.replace('_', ' ').title())
     
-    bars2 = ax2.bar(key_datasets, missing_data, color=['#E67E22', '#8E44AD'], alpha=0.8, edgecolor='black', linewidth=1)
-    ax2.set_title('Missing Data Percentage (Key Datasets)', fontsize=14, fontweight='bold', pad=20)
+    bars2 = ax2.bar(missing_dataset_names, missing_data, color=colors[:len(missing_dataset_names)], alpha=0.8, edgecolor='black', linewidth=1)
+    ax2.set_title('Missing Data Percentage (All Datasets)', fontsize=14, fontweight='bold', pad=20)
     ax2.set_ylabel('Missing Data (%)', fontsize=12, fontweight='bold')
-    ax2.tick_params(axis='x', labelsize=12)
+    ax2.tick_params(axis='x', rotation=45, labelsize=10)
     ax2.tick_params(axis='y', labelsize=10)
     ax2.grid(axis='y', alpha=0.3)
     for bar, v in zip(bars2, missing_data):
         max_missing = max(missing_data) if missing_data and max(missing_data) > 0 else 1
         ax2.text(bar.get_x() + bar.get_width()/2, v + max_missing*0.05, 
-                f'{v:.1f}%', ha='center', va='bottom', fontsize=11, fontweight='bold')
+                f'{v:.1f}%', ha='center', va='bottom', fontsize=10, fontweight='bold')
     
     # Data types distribution for person dataset
     person_df = datasets.get('person')
@@ -327,26 +325,6 @@ def create_data_overview_plot(datasets):
         for text in texts:
             text.set_fontsize(10)
             text.set_fontweight('bold')
-    
-    # Memory usage by dataset
-    memory_usage = []
-    for name, df in datasets.items():
-        if df is not None:
-            memory_mb = df.memory_usage(deep=True).sum() / (1024**2)
-            memory_usage.append(memory_mb)
-        else:
-            memory_usage.append(0)
-    
-    bars4 = ax4.bar(dataset_names, memory_usage, color=colors[:len(dataset_names)], alpha=0.8, edgecolor='black', linewidth=1)
-    ax4.set_title('Memory Usage by Dataset', fontsize=14, fontweight='bold', pad=20)
-    ax4.set_ylabel('Memory Usage (MB)', fontsize=12, fontweight='bold')
-    ax4.tick_params(axis='x', rotation=45, labelsize=10)
-    ax4.tick_params(axis='y', labelsize=10)
-    ax4.grid(axis='y', alpha=0.3)
-    for bar, v in zip(bars4, memory_usage):
-        max_memory = max(memory_usage) if memory_usage else 1
-        ax4.text(bar.get_x() + bar.get_width()/2, v + max_memory*0.01, 
-                f'{v:.1f}MB', ha='center', va='bottom', fontsize=10, fontweight='bold')
     
     plt.tight_layout(pad=3.0)
     plt.savefig('../../01_preprocessing/outputs/initial_data_overview.png', dpi=300, bbox_inches='tight', facecolor='white')
