@@ -261,7 +261,7 @@ def create_data_overview_plot(datasets):
     """Create initial data overview visualization"""
     
     plt.style.use('default')
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18, 6))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
     fig.suptitle('VISTA 2023-2024 Dataset Overview', fontsize=18, fontweight='bold', y=0.98)
     
     # Define vibrant color palette
@@ -304,27 +304,6 @@ def create_data_overview_plot(datasets):
         max_missing = max(missing_data) if missing_data and max(missing_data) > 0 else 1
         ax2.text(bar.get_x() + bar.get_width()/2, v + max_missing*0.05, 
                 f'{v:.1f}%', ha='center', va='bottom', fontsize=10, fontweight='bold')
-    
-    # Data types distribution for person dataset
-    person_df = datasets.get('person')
-    if person_df is not None:
-        dtype_counts = person_df.dtypes.value_counts()
-        pie_colors = ['#FF5733', '#33A1FF', '#FFD700', '#FF69B4', '#32CD32', '#FF4500']
-        _, texts, autotexts = ax3.pie(dtype_counts.values, 
-                                      labels=[str(x) for x in dtype_counts.index], 
-                                      autopct='%1.1f%%', 
-                                      startangle=90,
-                                      colors=pie_colors[:len(dtype_counts)],
-                                      explode=[0.05]*len(dtype_counts),
-                                      shadow=True)
-        ax3.set_title('Person Dataset: Data Types Distribution', fontsize=14, fontweight='bold', pad=20)
-        for autotext in autotexts:
-            autotext.set_color('white')
-            autotext.set_fontweight('bold')
-            autotext.set_fontsize(10)
-        for text in texts:
-            text.set_fontsize(10)
-            text.set_fontweight('bold')
     
     plt.tight_layout(pad=3.0)
     plt.savefig('../../01_preprocessing/outputs/initial_data_overview.png', dpi=300, bbox_inches='tight', facecolor='white')
