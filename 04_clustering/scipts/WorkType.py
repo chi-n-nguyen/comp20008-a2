@@ -6,23 +6,27 @@ import seaborn as sns
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 
+person_df = pd.read_csv("01_preprocessing/outputs/processed_person_master_readable.csv")
 
-person_df = pd.read_csv("01_preprocessing/outputs/processed_person_master.csv")
-print(person_df.columns)
+person_df['wfh_frequency'] = person_df[['wfh_monday', 'wfh_tuesday', 'wfh_wednesday', 'wfh_thursday', 'wfh_friday', 'wfh_saturday', 'wfh_sunday']].sum(axis=1)
+person_df['wfh_consistency'] = person_df[['wfh_monday', 'wfh_tuesday', 'wfh_wednesday', 'wfh_thursday', 'wfh_friday']].std(axis=1) 
 
 person_features = [
     'wfh_intensity',
     'wfh_adopter',
+    'wfh_frequency',
+    'wfh_consistency'
 ]
 
 median = person_df[person_features].median()
 person_df[person_features] = person_df[person_features].fillna(median)
 
 le = LabelEncoder()
-person_df['anzsco1_encoded'] = le.fit_transform(person_df['anzsco1'].fillna('Unknown'))
+person_df['works_full_time_encoded'] = le.fit_transform(person_df['works_full_time'].fillna('Unknown'))
+person_df['works_part_time_encoded'] = le.fit_transform(person_df['works_part_time'].fillna('Unknown'))
 
-person_features.append('anzsco1_encoded')
-
+person_features.append('works_full_time_encoded')
+person_features.append('works_part_time_encoded')
 
 normalized_data = MinMaxScaler().fit_transform(person_df[person_features])
 
@@ -57,10 +61,10 @@ ax2.set_xlabel('Number of Clusters')
 ax2.set_ylabel('Silhouette Score')
 plt.tight_layout()
 
-plt.savefig('person_cluster_optimization.png', dpi=300)
+plt.savefig('WorkType_cluster_optimization.png', dpi=300)
 
 # Apply optimal clustering (from the two graphs above shows optimal k is 3)
-optimal_k = 3
+optimal_k = 6
 kmeans_final = KMeans(n_clusters=optimal_k, random_state=42)
 person_df['cluster'] = kmeans_final.fit_predict(normalized_data)
 
@@ -81,13 +85,15 @@ sklearn_pca = PCA(n_components=2)
 X_pca = sklearn_pca.fit_transform(X_scaled)
 
 plt.figure(figsize=(10, 8))
-sns.scatterplot(x = X_pca[:,0],
-                y = X_pca[:,1],
-                hue = kmeans_final.labels_)
-plt.xlabel('First Principal Component')
-plt.ylabel('Second Principal Component')
-plt.title('Household WFH Clusters (PCA Visualization)')
+sns.scatterplot(x=X_pca[:, 0],
+                y=X_pca[:, 1],
+                hue=kmeans_final.labels_,
+                palette='Set2',
+                alpha=0.6,
+                s=50)
+plt.xlabel('Overall WFH engagement')
+plt.ylabel('WFH stability & employment pattern')
+plt.title('WorkType WFH Clusters (PCA Visualization)')
 plt.legend()
 plt.grid(True, alpha=0.3)
-plt.savefig('person_household_clusters_pca.png', dpi=300)
-
+plt.savefig('WorkType_household_clusters_pca.png', dpi=300)
