@@ -19,13 +19,10 @@ We investigate WFH adoption predictors using VISTA 2023-2024 data representing 8
 
 ```
 comp20008-a2/
-├── 00_raw_data/                    # Original VISTA 2023-2024 datasets
+├── 00_raw_data/                    # Core VISTA 2023-2024 datasets
 │   ├── household_vista_2023_2024.csv
 │   ├── person_vista_2023_2024.csv
-│   ├── trips_vista_2023_2024.csv
-│   ├── stops_vista_2023_2024.csv
-│   ├── journey_to_work_vista_2023_2024.csv
-│   └── journey_to_education_vista_2023_2024.csv
+│   └── journey_to_work_vista_2023_2024.csv
 ├── 01_preprocessing/               # Data cleaning and feature engineering
 │   ├── README.md                   # Preprocessing pipeline documentation
 │   ├── scripts/
@@ -46,8 +43,6 @@ comp20008-a2/
 │       ├── processed_household_master_readable.csv
 │       ├── processed_household_master_readable_feature_dictionary.json
 │       ├── processed_journey_master.csv
-│       ├── processed_morning_travel.csv
-│       ├── processed_stops_analysis.csv
 │       ├── data_dictionary.json
 │       └── integration_validation_report.txt
 ├── 02_correlation_analysis/        # Statistical correlation analysis
@@ -90,21 +85,19 @@ comp20008-a2/
 
 - **Household** (3,239): Dwelling, vehicles, composition
 - **Person** (8,175): Demographics, employment, WFH frequency  
-- **Trips** (24,457): Modes, purposes, timing
-- **Stops** (27,862): Locations, durations
-- **Journey-to-work** (1,819): Complete commute chains
-- **Journey-to-education** (684): Student travel
+- **Journey-to-work** (1,819): Complete commute chains for working population
 
 **Survey Weights**: Post-stratification weights (`perspoststratweight`, `hhpoststratweight`) enable population-level inference. All analyses weight appropriately to ensure Melbourne representativeness.
 
 ## Analysis Methods
 
 ### 1. Data Preprocessing
-Rigorous pipeline with quality controls:
-- Multi-dataset integration using hierarchical identifiers
+Streamlined pipeline with quality controls:
+- **3 core datasets** integration using hierarchical identifiers (removed unused datasets for efficiency)
 - WFH target variable validation (resolved inconsistencies)
 - Survey weight application throughout
-- Zero missing values, consistent data types
+- Strategic missing value handling (median imputation <5%, zero-fill with indicators 5-50%, drop >50%)
+- Consistent data types and outlier capping
 
 ### 2. Correlation Analysis
 Statistical association testing:

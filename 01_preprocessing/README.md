@@ -1,16 +1,16 @@
 # Data Preprocessing Pipeline
 
-Rigorous data integration and quality control for VISTA 2023-2024 WFH adoption analysis.
+Streamlined data integration and quality control for VISTA 2023-2024 WFH adoption analysis.
 
 ## Use of Gen AI Declaration
 I acknowledge my use of Claude [claude.ai] to assist with code development for this project's data preprocessing. 
 
 ## Overview
 
-Multi-dataset integration with methodological quality controls:
-- **Data sources**: Households, persons, trips, journeys, stops
+Efficient 3-dataset integration with methodological quality controls:
+- **Data sources**: Households, persons, journey-to-work (removed unused datasets for efficiency)
 - **Integration**: Hierarchical identifiers (person -> household -> journey)
-- **Quality assurance**: Target variable validation, survey weighting, zero missing values
+- **Quality assurance**: Target variable validation, survey weighting, strategic missing value handling
 - **Output**: Analysis-ready datasets with human-readable variable names
 
 ## Directory Structure
@@ -22,9 +22,10 @@ Multi-dataset integration with methodological quality controls:
 │   ├── initial_data_overview.png
 │   ├── integration_validation_report.txt
 │   ├── processed_household_master.csv
+│   ├── processed_household_master_readable.csv
 │   ├── processed_journey_master.csv
-│   ├── processed_morning_travel.csv
-│   └── processed_person_master.csv
+│   ├── processed_person_master.csv
+│   └── processed_person_master_readable.csv
 └── scripts/             # Processing scripts
     ├── aggregates.py    # Dataset construction utilities
     ├── config.py        # Configuration parameters
@@ -47,7 +48,7 @@ Multi-dataset integration with methodological quality controls:
 
 ### Quality Control (`validate.py`)
 **Methodological rigor**:
-- Missing value handling: Drop >80% missing columns, median imputation
+- **Strategic missing value handling**: Drop >50% missing columns, median imputation <5%, zero-fill with indicators 5-50%
 - Outlier management: IQR detection, 99th percentile capping
 - Data type standardization across all WFH variables
 
@@ -71,7 +72,6 @@ Multi-dataset integration with methodological quality controls:
 - **`processed_person_master.csv`** (4,361 workers): Individual WFH analysis
 - **`processed_household_master.csv`** (3,239 households): Clustering analysis  
 - **`processed_journey_master.csv`** (1,819 commuters): Journey correlation analysis
-- **`processed_morning_travel.csv`** (5,742 trips): Travel pattern analysis
 
 ### ML-Ready Versions  
 - **`*_readable.csv`**: Human-interpretable variable names
@@ -83,10 +83,11 @@ Multi-dataset integration with methodological quality controls:
 - `agegroup` -> `age_group`
 
 ### Quality Metrics
-- **Zero missing values** across all datasets
+- **Strategic missing value handling** with empirical thresholds (50%/5% cutoffs)
 - **Consistent data types** (all WFH variables as int64)
 - **Validated target variables** (WFH adoption consistency: 99.86%)
 - **Survey weights applied** throughout
+- **Streamlined pipeline** (removed unused datasets: trips, stops, education journeys)
 
 ## Usage
 
