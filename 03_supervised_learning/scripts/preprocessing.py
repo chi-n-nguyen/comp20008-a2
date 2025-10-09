@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 
-def prepare_features(household_df, person_df, journey_df, morning_df):
+def prepare_features(household_df, person_df, journey_df):
     """
     Merge datasets and create features for modeling.
     """
