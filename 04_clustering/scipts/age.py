@@ -63,7 +63,7 @@ plt.tight_layout()
 plt.savefig('age_cluster_optimization.png', dpi=300)
 
 # Apply optimal clustering (from the two graphs above shows optimal k is 3)
-optimal_k = 5
+optimal_k = 3
 kmeans_final = KMeans(n_clusters=optimal_k, random_state=42)
 person_df['cluster'] = kmeans_final.fit_predict(normalized_data)
 
