@@ -115,7 +115,7 @@ def plot_results(results_rf, results_lr, y_test):
 
 def plot_feature_importance(model_rf, model_lr, feature_names, top_n=15):
     """Plot feature importance for both models."""
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 8))
     
     # Random Forest
     importance_rf = pd.DataFrame({
@@ -124,7 +124,7 @@ def plot_feature_importance(model_rf, model_lr, feature_names, top_n=15):
     }).sort_values('importance', ascending=False).head(top_n)
     
     ax1.barh(importance_rf['feature'], importance_rf['importance'], color='steelblue')
-    ax1.set_xlabel('Importance')
+    ax1.set_xlabel('Importance', fontsize=11)
     ax1.set_title(f'Random Forest - Top {top_n} Features', fontsize=12, fontweight='bold')
     ax1.invert_yaxis()
     
@@ -139,8 +139,11 @@ def plot_feature_importance(model_rf, model_lr, feature_names, top_n=15):
     ax2.barh(importance_lr['feature'], importance_lr['abs_coefficient'], color=colors)
     ax2.set_xlabel('Absolute Coefficient')
     ax2.set_title(f'Logistic Regression - Top {top_n} Features\n(Green=Positive, Red=Negative)', 
-                  fontsize=12, fontweight='bold')
+                  fontsize=12, fontweight='bold', pad=15)
     ax2.invert_yaxis()
+
+    # Adjust layout to prevent overlap
+    plt.tight_layout(pad=2.0)
 
     # Create output path relative to script location
     script_dir = os.path.dirname(os.path.abspath(__file__))
