@@ -160,7 +160,10 @@ pip install pandas numpy matplotlib seaborn scikit-learn scipy
 
 4. **Perform clustering**:
    ```bash
-   cd 04_clustering/scripts 
+   cd 04_clustering/scripts
+   python 1.py
+   python 2.py
+   python 3.py
    ```
 
 ---
