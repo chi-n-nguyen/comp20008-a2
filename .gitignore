@@ -16,3 +16,16 @@ env/
 
 # clustering outputs
 04_clustering_analysis/outputs/
+.DS_Store
+.vscode/
+# Python build cache
+__pycache__/
+*.pyc
+# Virtual envs
+.venv/
+venv/
+ENV/
+env/
+# Generated figures/outputs (按你的目录名调整)
+04_clustering/outputs/
+04_clustering_analysis/outputs/
