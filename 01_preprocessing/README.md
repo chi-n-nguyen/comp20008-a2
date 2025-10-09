@@ -2,6 +2,9 @@
 
 Rigorous data integration and quality control for VISTA 2023-2024 WFH adoption analysis.
 
+## Use of Gen AI Declaration
+I acknowledge my use of Claude [claude.ai] to assist with code development for this project's data preprocessing. 
+
 ## Overview
 
 Multi-dataset integration with methodological quality controls:
