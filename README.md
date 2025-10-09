@@ -1,12 +1,12 @@
 # Working From Home Adoption Analysis
 
-**Research Question: "What factors predict working-from-home (WFH) adoption?"**
+**Research Question: "What factors predict working-from-home (WFH) adoption in post-pandemic Melbourne?"**
 
 ## Team Members
 
 | Name | Role | Student ID | GitHub |
 |------|------|------------|--------|
-| Nhat Chi Nguyen | Team Lead + Data Integration | 1492182 | chi-n-nguyen |
+| Nhat Chi Nguyen | Team Lead & Data Integration | 1492182 | chi-n-nguyen |
 | Chang Lu | Correlation Analysis | 1551448 | 9uchang |
 | Wanhui Li | Supervised Learning Models | 1450755 | Waiola77 |
 | Jingxuan Bai | Clustering & Visualisation | 1566889 | BBrianUU |
