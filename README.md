@@ -7,8 +7,8 @@
 | Name | Role | Student ID | GitHub |
 |------|------|------------|--------|
 | Nhat Chi Nguyen | Team Lead + Data Integration | 1492182 | chi-n-nguyen |
-| Wanhui Li | Supervised Learning Models | 1450755 | Waiola77 |
 | Chang Lu | Correlation Analysis | 1551448 | 9uchang |
+| Wanhui Li | Supervised Learning Models | 1450755 | Waiola77 |
 | Jingxuan Bai | Clustering & Visualisation | 1566889 | BBrianUU |
 
 ## Overview
@@ -160,31 +160,8 @@ pip install pandas numpy matplotlib seaborn scikit-learn scipy
 
 4. **Perform clustering**:
    ```bash
-   cd 04_clustering
-   python 1.py
-   python 2.py
-   python 3.py
+   cd 04_clustering/scripts 
    ```
-
-## Output Files
-
-**Preprocessing**:
-- `processed_person_master.csv` (4,361 workers)
-- `processed_household_master.csv` (3,239 households)  
-- `processed_journey_master.csv` (1,819 commuters)
-- Readable versions with human-interpretable variable names
-
-**Analysis Results**:
-- Correlation plots with statistical measures
-- ML model performance and feature importance
-- Household cluster profiles and geographic distributions
-
-## Expected Findings
-
-- **High predictability**: 99.9-100% ML accuracy suggests structural WFH determination
-- **Occupational dominance**: Job requirements outweigh personal preferences
-- **Household patterns**: Distinct WFH adoption profiles across household types
-- **Policy insights**: Targeted interventions for specific demographic/occupational groups
 
 ---
 
