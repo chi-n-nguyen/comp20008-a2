@@ -64,11 +64,26 @@ def plot_results(results_rf, results_lr, y_test):
     metrics = ['F1-Score']
     rf_scores = [results_rf['f1_score']]
     lr_scores = [results_lr['f1_score']]
-    
+
     x = np.arange(len(metrics))
     width = 0.35
-    ax3.bar(x - width/2, rf_scores, width, label='Random Forest', color='steelblue')
-    ax3.bar(x + width/2, lr_scores, width, label='Logistic Regression', color='seagreen')
+
+    bars1 = ax3.bar(x - width/2, rf_scores, width, label='Random Forest', color='steelblue')
+    bars2 = ax3.bar(x + width/2, lr_scores, width, label='Logistic Regression', color='seagreen')
+
+    # Add value labels on top of bars
+    for bar in bars1:
+        height = bar.get_height()
+        ax3.text(bar.get_x() + bar.get_width()/2., height,
+                f'{height:.4f}',  # Show 4 decimal places
+                ha='center', va='bottom', fontsize=10, fontweight='bold')
+
+    for bar in bars2:
+        height = bar.get_height()
+        ax3.text(bar.get_x() + bar.get_width()/2., height,
+                f'{height:.4f}',  # Show 4 decimal places
+                ha='center', va='bottom', fontsize=10, fontweight='bold')
+
     ax3.set_ylabel('Score')
     ax3.set_title('Model Performance Comparison', fontsize=12, fontweight='bold')
     ax3.set_xticks(x)
