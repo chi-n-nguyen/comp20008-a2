@@ -30,10 +30,10 @@ def main():
     print("=" * 70)
     
     # Load data
-    household_df, person_df, journey_df, morning_df = load_and_merge_data()
+    household_df, person_df, journey_df =load_and_merge_data()
     
     # Prepare and merge features
-    df = prepare_features(household_df, person_df, journey_df, morning_df)
+    df = prepare_features(household_df, person_df, journey_df)
     
     # Select and clean features
     df_clean, label_encoders = select_features(df)
