@@ -35,38 +35,52 @@ comp20008-a2/
 │   │   ├── features.py
 │   │   ├── aggregates.py
 │   │   ├── validate.py
+│   │   ├── variable_mapping.py
 │   │   └── weights.py
 │   └── outputs/
 │       ├── initial_data_overview.png
 │       ├── processed_person_master.csv
+│       ├── processed_person_master_readable.csv
+│       ├── processed_person_master_readable_feature_dictionary.json
 │       ├── processed_household_master.csv
+│       ├── processed_household_master_readable.csv
+│       ├── processed_household_master_readable_feature_dictionary.json
 │       ├── processed_journey_master.csv
 │       ├── processed_morning_travel.csv
+│       ├── processed_stops_analysis.csv
 │       ├── data_dictionary.json
 │       └── integration_validation_report.txt
 ├── 02_correlation_analysis/        # Statistical correlation analysis
 │   ├── scripts/
-│   │   ├── Agegroup_WFH_Correlation.py    # Age group vs WFH intensity
-│   │   └── Occupation_WFH_Correlation.py  # Occupation vs WFH adoption
+│   │   ├── Person_Factor.py        # Person-level factor analysis
+│   │   └── Commute_Factor.py       # Commute pattern analysis
 │   └── outputs/
-│       ├── adoption_and_intensity.png
-│       └── age_group_vs_wfh_intensity_nmi_original.png
+│       ├── Age_vs_Occupation.png
+│       └── Journey_Mode_Purpose_Time.png
 ├── 03_supervised_learning/         # Machine learning models
 │   ├── scripts/
-│   │   └── wfh_prediction.py       # WFH prediction models
+│   │   ├── main.py                 # Main WFH prediction pipeline
+│   │   ├── data_loader.py          # Data loading utilities
+│   │   ├── preprocessing.py        # Feature preprocessing
+│   │   ├── models.py               # ML model implementations
+│   │   ├── evaluation.py           # Model evaluation metrics
+│   │   └── visualization.py        # Results visualization
 │   └── outputs/
 │       ├── feature_importance.png
 │       └── wfh_prediction_results.png
-├── 04_clustering_analysis/         # Unsupervised learning and segmentation
-│   ├── README.md                   # Clustering analysis documentation
-│   ├── scripts/
-│   │   ├── household_wfh_clustering.py     # Main clustering implementation
-│   │   └── geographic_cluster_analysis.py  # Geographic distribution analysis
+├── 04_clustering/                  # Unsupervised learning and segmentation
+│   ├── 1.py                        # Clustering implementation script 1
+│   ├── 2.py                        # Clustering implementation script 2
+│   ├── 3.py                        # Clustering implementation script 3
 │   └── outputs/
-│       ├── cluster_optimization.png
 │       ├── household_clusters_pca.png
-│       ├── cluster_profiles_heatmap.png
-│       └── geographic_cluster_*.png
+│       ├── household_geographic_cluster_distribution.png
+│       ├── househould_cluster_optimization.png
+│       ├── person_cluster_optimization.png
+│       └── person_household_clusters_pca.png
+├── cluster_optimization.png        # Additional clustering outputs
+├── geographic_cluster_distribution.png
+├── household_clusters_pca.png
 └── README.md
 ```
 
@@ -94,9 +108,9 @@ Rigorous pipeline with quality controls:
 
 ### 2. Correlation Analysis
 Statistical association testing:
-- **Age × WFH Intensity**: Normalized Mutual Information across age groups vs WFH frequency (0-7 days/week)
-- **Occupation × WFH Adoption**: Chi-square test for occupational WFH patterns
-- Survey-weighted contingency tables for population validity
+- **Person Factor Analysis**: Demographics, occupation, and WFH adoption patterns
+- **Commute Factor Analysis**: Journey patterns, transport modes, and travel characteristics
+- Survey-weighted analyses for population validity
 
 ### 3. Supervised Learning
 Predictive modeling with hyperparameter optimization:
@@ -135,18 +149,21 @@ pip install pandas numpy matplotlib seaborn scikit-learn scipy
 2. **Run correlation analysis**:
    ```bash
    cd 02_correlation_analysis/scripts
-   python Agegroup_WFH_Correlation.py
-   python Occupation_WFH_Correlation.py
+   python Person_Factor.py
+   python Commute_Factor.py
    ```
 
 3. **Execute ML models**:
    ```bash
-   cd 03_supervised_learning/scripts && python wfh_prediction.py
+   cd 03_supervised_learning/scripts && python main.py
    ```
 
 4. **Perform clustering**:
    ```bash
-   cd 04_clustering_analysis/scripts && python household_wfh_clustering.py
+   cd 04_clustering
+   python 1.py
+   python 2.py
+   python 3.py
    ```
 
 ## Output Files
