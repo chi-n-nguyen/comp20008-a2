@@ -5,28 +5,44 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import re
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
 
 
-journey_df = pd.read_csv("01_preprocessing/outputs/processed_journey_master.csv")
-print(journey_df.columns)
-print(journey_df.loc[0])
+household_df = pd.read_csv("01_preprocessing/outputs/processed_household_master_readable.csv")
 
-journey_features = [
-    'wfh_intensity',
-    'wfh_adopter',
-    'agegroup'
+
+household_features = [
+    'household_wfh_saturation',      
+    'num_wfh_workers',
+    'proportion_wfh_workers',
+    'avg_household_wfh_intensity',
+    'max_household_wfh_intensity',
+    'num_working_members',
+    'has_worker',
+    'household_income_group',   
 ]
 
-median = journey_df[journey_features].median()
-journey_df[journey_features] = journey_df[journey_features].fillna(median)
+def average_yearly(s):
+    if pd.isna(s):
+        return None
+    else:
+        num_list = [int(x.replace(",", "")) for x in re.findall(r"[\d,]+", s)]
+        if len(num_list) == 2:
+            return num_list[1]
+        elif len(num_list) == 4:
+            average = (num_list[2] + num_list[3]) / 2
+            return average
+        
+household_df['household_income_group'] = household_df['household_income_group'].apply(average_yearly)
+        
 
-
-normalized_data = MinMaxScaler().fit_transform(journey_df[journey_features])
+# Normalize features
+median = household_df[household_features].median()
+household_df[household_features] = household_df[household_features].fillna(median)
+normalized_data = MinMaxScaler().fit_transform(household_df[household_features])
 
 # Standardize features
 scaler = StandardScaler()
-X_scaled = scaler.fit_transform(journey_df[journey_features])
+X_scaled = scaler.fit_transform(household_df[household_features])
 
 
 # Determine optimal number of clusters
@@ -55,16 +71,16 @@ ax2.set_xlabel('Number of Clusters')
 ax2.set_ylabel('Silhouette Score')
 plt.tight_layout()
 
-plt.savefig('journey_cluster_optimization.png', dpi=300)
+plt.savefig('househould_cluster_optimization.png', dpi=300)
 
-# Apply optimal clustering (from the two graphs above shows optimal k is 3)
+# Apply optimal clustering (from the two graphs above shows optimal k is 2)
 optimal_k = 3
 kmeans_final = KMeans(n_clusters=optimal_k, random_state=42)
-journey_df['cluster'] = kmeans_final.fit_predict(normalized_data)
+household_df['cluster'] = kmeans_final.fit_predict(normalized_data)
 
 # Cluster profiling
-cluster_profiles = journey_df.groupby('cluster')[journey_features].mean()
-cluster_sizes = journey_df['cluster'].value_counts().sort_index()
+cluster_profiles = household_df.groupby('cluster')[household_features].mean()
+cluster_sizes = household_df['cluster'].value_counts().sort_index()
 
 print("Cluster Profiles:")
 print(cluster_profiles)
@@ -82,9 +98,10 @@ plt.figure(figsize=(10, 8))
 sns.scatterplot(x = X_pca[:,0],
                 y = X_pca[:,1],
                 hue = kmeans_final.labels_)
-plt.xlabel('First Principal Component')
-plt.ylabel('Second Principal Component')
+plt.xlabel('Overall WFH adoption & intensity')
+plt.ylabel('Work structure & income vs WFH')
 plt.title('Household WFH Clusters (PCA Visualization)')
 plt.legend()
 plt.grid(True, alpha=0.3)
-plt.savefig('journey_household_clusters_pca.png', dpi=300)
+plt.savefig('household_clusters_pca.png', dpi=300)
+
