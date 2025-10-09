@@ -74,7 +74,7 @@ def load_and_merge_data():
     Load and merge household travel survey data.
     
     Returns:
-        tuple: (household_df, person_df, journey_df, morning_df)
+        tuple: (household_df, person_df, journey_df)
     """
     # Get the directory where this script is located
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -89,8 +89,7 @@ def load_and_merge_data():
     files_to_load = {
         'household': 'processed_household_master_readable',
         'person': 'processed_person_master_readable',
-        'journey': 'processed_journey_master',
-        'morning': 'processed_morning_travel'
+        'journey': 'processed_journey_master'
     }
     loaded_data = {}
     
@@ -114,10 +113,9 @@ def load_and_merge_data():
         household_df = loaded_data['household']
         person_df = loaded_data['person']
         journey_df = loaded_data['journey']
-        morning_df = loaded_data['morning']
         
         print(f"\nSuccessfully loaded all data files:")
-        return household_df, person_df, journey_df, morning_df
+        return household_df, person_df, journey_df
         
     except FileNotFoundError as e:
         print(f"\nError: {e}")
@@ -125,7 +123,7 @@ def load_and_merge_data():
 
 if __name__ == "__main__":
     try:
-        household_df, person_df, journey_df, morning_df = load_and_merge_data()
+        household_df, person_df, journey_df = load_and_merge_data()
         print("\nData loading test successful!")
     except Exception as e:
         print(f"\nTest failed: {e}")

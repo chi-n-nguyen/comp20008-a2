@@ -30,10 +30,7 @@ def load_vista_datasets():
     file_paths = {
         'household': '../../00_raw_data/household_vista_2023_2024.csv',
         'person': '../../00_raw_data/person_vista_2023_2024.csv', 
-        'trips': '../../00_raw_data/trips_vista_2023_2024.csv',
-        'stops': '../../00_raw_data/stops_vista_2023_2024.csv',
-        'work_journeys': '../../00_raw_data/journey_to_work_vista_2023_2024.csv',
-        'edu_journeys': '../../00_raw_data/journey_to_education_vista_2023_2024.csv'
+        'work_journeys': '../../00_raw_data/journey_to_work_vista_2023_2024.csv'
     }
     
     print("Loading datasets...")

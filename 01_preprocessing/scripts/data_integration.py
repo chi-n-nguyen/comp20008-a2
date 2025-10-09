@@ -60,10 +60,7 @@ def main():
 
     persons_df = datasets['persons']
     households_df = datasets['households']
-    trips_df = datasets['trips']
     journey_work_df = datasets['journey_work']
-    journey_edu_df = datasets['journey_edu']
-    stops_df = datasets['stops']
 
     if persons_df is None or households_df is None:
         raise ValueError("Required datasets (persons/households) are missing")
@@ -75,41 +72,16 @@ def main():
     persons_with_wfh = create_wfh_features(persons_weighted)
     households_enhanced = create_household_wfh_metrics(persons_with_wfh, households_df)
 
-    # Morning travel
-    if trips_df is not None:
-        morning_travel = analyze_travel_start_times(persons_with_wfh, trips_df)
-    else:
-        morning_travel = pd.DataFrame()
-    
-    # Stops analysis (if available)
-    if stops_df is not None:
-        stops_analysis = analyze_stops_data(persons_with_wfh, stops_df)
-    else:
-        stops_analysis = pd.DataFrame()
 
     # Masters
     person_master = create_person_level_dataset(persons_with_wfh, households_enhanced)
-    hh_master = create_household_level_dataset(households_enhanced, trips_df if trips_df is not None else pd.DataFrame())
+    hh_master = create_household_level_dataset(households_enhanced, pd.DataFrame())
     
-    # Journey datasets (work + education)
-    journey_work_master = pd.DataFrame()
-    journey_edu_master = pd.DataFrame()
+    # Journey datasets (work only)
+    journey_master = pd.DataFrame()
     
     if journey_work_df is not None:
-        journey_work_master = create_journey_level_dataset(journey_work_df, persons_with_wfh)
-        
-    if journey_edu_df is not None:
-        journey_edu_master = create_journey_level_dataset(journey_edu_df, persons_with_wfh)
-    
-    # Combine journey datasets
-    if not journey_work_master.empty and not journey_edu_master.empty:
-        journey_master = pd.concat([journey_work_master, journey_edu_master], ignore_index=True)
-    elif not journey_work_master.empty:
-        journey_master = journey_work_master
-    elif not journey_edu_master.empty:
-        journey_master = journey_edu_master
-    else:
-        journey_master = pd.DataFrame()
+        journey_master = create_journey_level_dataset(journey_work_df, persons_with_wfh)
 
     # Missing values and data quality report
     print(f"\n{'='*70}")
@@ -157,13 +129,6 @@ def main():
     journey_master_clean.to_csv(f"{config.OUTPUT_DIR}/processed_journey_master.csv", index=False)
     print(f"Saved: processed_journey_master.csv ({journey_master_clean.shape})")
 
-    if not morning_travel.empty:
-        morning_travel.to_csv(f"{config.OUTPUT_DIR}/processed_morning_travel.csv", index=False)
-        print(f"Saved: processed_morning_travel.csv ({morning_travel.shape})")
-    
-    if not stops_analysis.empty:
-        stops_analysis.to_csv(f"{config.OUTPUT_DIR}/processed_stops_analysis.csv", index=False)
-        print(f"Saved: processed_stops_analysis.csv ({stops_analysis.shape})")
 
 
     # Data dictionary

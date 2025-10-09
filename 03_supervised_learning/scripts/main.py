@@ -8,7 +8,6 @@ Files used:
 - processed_household_master.csv
 - processed_person_master.csv
 - processed_journey_master.csv
-- processed_morning_travel.csv
 """
 import os
 import sys

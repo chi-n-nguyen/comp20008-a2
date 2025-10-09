@@ -14,10 +14,7 @@ OUTPUT_DIR = "../../01_preprocessing/outputs"
 FILENAMES = {
     'households': f"{RAW_DIR}/household_vista_2023_2024.csv",
     'persons': f"{RAW_DIR}/person_vista_2023_2024.csv",
-    'trips': f"{RAW_DIR}/trips_vista_2023_2024.csv",
-    'stops': f"{RAW_DIR}/stops_vista_2023_2024.csv",
     'journey_work': f"{RAW_DIR}/journey_to_work_vista_2023_2024.csv",
-    'journey_edu': f"{RAW_DIR}/journey_to_education_vista_2023_2024.csv",
 }
 
 # Column groups
