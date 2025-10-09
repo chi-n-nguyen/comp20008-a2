@@ -86,25 +86,25 @@ plt.figure(figsize=(14, 12))
 # Subplot 1: WFH Adoption Rate by Occupation Major Group
 plt.subplot(2, 1, 1)
 ax1 = sns.barplot(x=occ_adopt_rate.index, y=occ_adopt_rate.values, palette="Set2")
-plt.title("WFH Adoption Rate by Occupation Major Group (%)", fontsize=12, pad=15)
+plt.title("WFH Adoption Rate by Occupation Major Group (%)\n(A = Adoption Rate, W = Weight)", fontsize=12, pad=15)
 plt.xlabel("Occupation Major Group", fontsize=10)
 plt.ylabel("Adoption Rate (%)", fontsize=10)
 plt.xticks(rotation=45, ha="right", fontsize=9)  # Rotate labels to avoid overlap
 # Add value lables on bars
 # I acknowledge that the addition of the weight labels was done with reference to AI.
 for i, (adopt_val, weight_val) in enumerate(zip(occ_adopt_rate.values, occ_weight_pct.values)):
-    ax1.text(i, adopt_val + 0.5, f"Adopt: {adopt_val:.1f}%", ha="center", va="bottom", fontsize=9, color="darkred")  # WFH rate
-    ax1.text(i, adopt_val + 5, f"W: {weight_val:.1f}%", ha="center", va="bottom", fontsize=8, color="darkblue")   # Weight
+    ax1.text(i, adopt_val + 0.2, f"A: {adopt_val:.1f}%", ha="center", va="bottom", fontsize=12, color="darkred")  # WFH rate
+    ax1.text(i, adopt_val + 3, f"W: {weight_val:.1f}%", ha="center", va="bottom", fontsize=12, color="darkblue")   # Weight
 
 # Add NMI info text box
-ax1.text(0.02, 0.95, f"Weighted NMI: {occ_nmi:.2f}", 
+ax1.text(0.02, 0.98, f"Weighted NMI: {occ_nmi:.2f}", 
          transform=ax1.transAxes, verticalalignment="top",
          bbox=dict(boxstyle="round", facecolor="white", alpha=0.8), fontsize=10)
 
 # Subplot 2: WFH Adoption Rate by Age Group
 plt.subplot(2, 1, 2)
-ax2 = sns.barplot(x=age_adopt_rate.index, y=age_adopt_rate.values, palette="Set3")
-plt.title("WFH Adoption Rate by Age Group (%)", fontsize=12, pad=15)
+ax2 = sns.barplot(x=age_adopt_rate.index, y=age_adopt_rate.values, palette="Set3", width=0.6)
+plt.title("WFH Adoption Rate by Age Group (%)\n(A = Adoption Rate, W = Weight)", fontsize=12, pad=15)
 plt.xlabel("Age Group", fontsize=10)
 plt.ylabel("Adoption Rate (%)", fontsize=10)
 plt.xticks(rotation=45, ha="right", fontsize=9)  # Rotate labels to avoid overlap
@@ -112,8 +112,8 @@ plt.xticks(rotation=45, ha="right", fontsize=9)  # Rotate labels to avoid overla
 # Add value labels on bars
 # I acknowledge that the addition of the weight labels was done with reference to AI.
 for i, (adopt_val, weight_val) in enumerate(zip(age_adopt_rate.values, age_weight_pct.values)):
-    ax2.text(i, adopt_val + 0.5, f"Adopt: {adopt_val:.1f}%", ha="center", va="bottom", fontsize=9, color="darkred")  # WFH rate
-    ax2.text(i, adopt_val + 5, f"W: {weight_val:.1f}%", ha="center", va="bottom", fontsize=8, color="darkblue")   # Weight
+    ax2.text(i, adopt_val + 0.9, f"A: {adopt_val:.1f}%", ha="center", va="bottom", fontsize=12, color="darkred")  # WFH rate
+    ax2.text(i, adopt_val + 8, f"W: {weight_val:.1f}%", ha="center", va="bottom", fontsize=12, color="darkblue")   # Weight
 
 # Determine variable with stronger association
 stronger_var = "Occupation Major Group" if occ_nmi > age_nmi else "Age Group"

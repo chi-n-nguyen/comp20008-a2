@@ -7,7 +7,7 @@ import math
 import os
 
 # This script uses the journey dataset to analyze three commute-related factors 
-# (main journey mode, journey travel time, and journey purpose). 
+# (main journey mode, journey travel time, and first commute destination purpose). 
 # For each factor, it calculates the Normalized Mutual Information (NMI) 
 # with WFH adoption (0 or 1) and identifies which factor shows the strongest association with WFH adoption.
 
@@ -84,7 +84,7 @@ mode_nmi, mode_ct, mode_adopt, mode_weight_pct = calculate_weighted_nmi_and_weig
     df=valid_df, var_name="main_journey_mode"
 )
 
-# Journey Purpose
+# First commute destination purpose
 purp_nmi, purp_ct, purp_adopt, purp_weight_pct = calculate_weighted_nmi_and_weights(
     df=valid_df, var_name="destpurp1_desc_01"
 )
@@ -100,7 +100,7 @@ plt.figure(figsize=(14, 20))  # Adjust size for clear labels
 # Subplot 1: Main Journey Mode
 plt.subplot(3, 1, 1)
 ax1 = sns.barplot(x=mode_adopt.index, y=mode_adopt.values, palette="Set2", legend=False)
-plt.title("WFH Adopter Rate by Main Journey Mode (End Loc=TO_WORK)", fontsize=13, pad=15)
+plt.title("WFH Adopter Rate by Main Journey Mode (End Loc=TO_WORK)", fontsize=13, pad=15, y=0.96)
 plt.xlabel("Main Journey Mode", fontsize=11)
 plt.ylabel("WFH Adopter Rate (%)", fontsize=11)
 plt.xticks(rotation=45, ha="right", fontsize=10)
@@ -113,11 +113,11 @@ for i, (adopt_val, weight_val) in enumerate(zip(mode_adopt.values, mode_weight_p
 ax1.text(0.02, 0.8, f"Weighted NMI: {mode_nmi:.2f}", transform=ax1.transAxes, 
          bbox=dict(boxstyle="round", facecolor="white", alpha=0.8), fontsize=11)
 
-# Subplot 2: Journey Purpose
+# Subplot 2: 
 plt.subplot(3, 1, 2)
 ax2 = sns.barplot(x=purp_adopt.index, y=purp_adopt.values, palette="Set3", legend=False)
-plt.title("WFH Adopter Rate by Journey Purpose (End Loc=TO_WORK)", fontsize=13, pad=15)
-plt.xlabel("Journey Purpose (destpurp1_desc_01)", fontsize=11)
+plt.title("WFH Adopter Rate by First commute destination purpose (End Loc=TO_WORK)", fontsize=13, pad=15)
+plt.xlabel("First commute destination purpose", fontsize=11)
 plt.ylabel("WFH Adopter Rate (%)", fontsize=11)
 plt.xticks(rotation=45, ha="right", fontsize=10)
 
@@ -148,7 +148,7 @@ ax3.text(0.02, 0.8, f"Weighted NMI: {time_nmi:.2f}", transform=ax3.transAxes,
 # Association Conclusion 
 nmi_dict = {
     "Main Journey Mode": mode_nmi,
-    "Journey Purpose": purp_nmi,
+    "First commute destination purpose": purp_nmi,
     "Journey Travel Time": time_nmi
 }
 strongest_var = max(nmi_dict, key=nmi_dict.get)
