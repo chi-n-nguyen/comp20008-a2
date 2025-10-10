@@ -23,6 +23,7 @@ WFH_WEEKENDS = ['wfhsat', 'wfhsun']
 WFH_ALL_DAYS = WFH_WEEKDAYS + WFH_WEEKENDS
 WFH_ALL = WFH_ALL_DAYS + ['wfhtravday', 'anywfh']
 PERSON_WEIGHT = 'perspoststratweight'
+HOUSEHOLD_WEIGHT = 'hhpoststratweight'
 JOURNEY_WEIGHT = 'journey_weight'
 
 # Mappings

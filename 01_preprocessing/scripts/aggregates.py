@@ -59,8 +59,8 @@ def create_person_level_dataset(persons_df, households_df):
     if 'homeregion_ASGS' not in persons_df.columns and 'homeregion_ASGS' in households_df.columns:
         hh_cols.append('homeregion_ASGS')
         
-    if 'hhpoststratweight' in households_df.columns:
-        hh_cols.append('hhpoststratweight')
+    if config.HOUSEHOLD_WEIGHT in households_df.columns:
+        hh_cols.append(config.HOUSEHOLD_WEIGHT)
     
     hh_cols = [c for c in hh_cols if c in households_df.columns]
     person_analysis = persons_df.merge(households_df[hh_cols], on='hhid', how='left')
@@ -102,9 +102,9 @@ def create_household_level_dataset(households_enhanced, trips_df):
     else:
         hh_master = households_enhanced.copy()
     # Apply proper household weights
-    if 'hhpoststratweight' in hh_master.columns:
-        hh_master['analysis_weight'] = hh_master['hhpoststratweight']
-        hh_master['weight_source'] = 'hhpoststratweight'
+    if config.HOUSEHOLD_WEIGHT in hh_master.columns:
+        hh_master['analysis_weight'] = hh_master[config.HOUSEHOLD_WEIGHT]
+        hh_master['weight_source'] = config.HOUSEHOLD_WEIGHT
     else:
         hh_master['analysis_weight'] = 1.0
         hh_master['weight_source'] = 'unweighted'
