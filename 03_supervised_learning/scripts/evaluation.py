@@ -55,6 +55,7 @@ def evaluate_model(model, X_test, y_test, model_name):
     y_pred_proba = model.predict_proba(X_test)[:, 1]
     
     cm = confusion_matrix(y_test, y_pred)
+    accuracy = accuracy_score(y_test, y_pred) 
     f1 = f1_score(y_test, y_pred, zero_division=0)
     roc_auc = roc_auc_score(y_test, y_pred_proba)
    
@@ -75,6 +76,7 @@ def evaluate_model(model, X_test, y_test, model_name):
     return {
         'confusion_matrix': cm,
         'f1_score': f1,
+        'accuracy': accuracy,
         'roc_auc': roc_auc,
         'y_pred': y_pred,
         'y_pred_proba': y_pred_proba

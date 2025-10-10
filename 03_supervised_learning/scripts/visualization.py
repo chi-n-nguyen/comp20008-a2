@@ -61,13 +61,11 @@ def plot_results(results_rf, results_lr, y_test):
     
     # Metrics Comparison
     ax3 = plt.subplot(2, 3, 3)
-    metrics = ['F1-Score']
-    rf_scores = [results_rf['f1_score']]
-    lr_scores = [results_lr['f1_score']]
-
+    metrics = ['Accuracy', 'F1-Score']
+    rf_scores = [results_rf['accuracy'], results_rf['f1_score']]
+    lr_scores = [results_lr['accuracy'], results_lr['f1_score']]
     x = np.arange(len(metrics))
     width = 0.35
-
     bars1 = ax3.bar(x - width/2, rf_scores, width, label='Random Forest', color='steelblue')
     bars2 = ax3.bar(x + width/2, lr_scores, width, label='Logistic Regression', color='seagreen')
 
@@ -77,7 +75,6 @@ def plot_results(results_rf, results_lr, y_test):
         ax3.text(bar.get_x() + bar.get_width()/2., height,
                 f'{height:.4f}',  # Show 4 decimal places
                 ha='center', va='bottom', fontsize=10, fontweight='bold')
-
     for bar in bars2:
         height = bar.get_height()
         ax3.text(bar.get_x() + bar.get_width()/2., height,
