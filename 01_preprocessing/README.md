@@ -21,19 +21,24 @@ Efficient 3-dataset integration with methodological quality controls:
 │   ├── data_dictionary.json
 │   ├── initial_data_overview.png
 │   ├── integration_validation_report.txt
+│   ├── outlier_boxplots.png    # Box plots for outlier analysis
 │   ├── processed_household_master.csv
 │   ├── processed_household_master_readable.csv
+│   ├── processed_household_master_readable_feature_dictionary.json
 │   ├── processed_journey_master.csv
 │   ├── processed_person_master.csv
-│   └── processed_person_master_readable.csv
+│   ├── processed_person_master_readable.csv
+│   └── processed_person_master_readable_feature_dictionary.json
 └── scripts/             # Processing scripts
     ├── aggregates.py    # Dataset construction utilities
-    ├── config.py        # Configuration parameters
+    ├── config.py        # Configuration parameters and constants
     ├── data_integration.py  # Main pipeline orchestrator
     ├── features.py      # Feature engineering functions
-    ├── initial_assessment.py  # Data exploration
-    ├── validate.py      # Data validation and cleaning
-    └── weights.py       # Weight handling utilities
+    ├── initial_assessment.py  # Data exploration and quality assessment
+    ├── outlier_analysis.py    # Outlier visualization and analysis
+    ├── validate.py      # Data validation and outlier handling
+    ├── variable_mapping.py    # Variable name transformations
+    └── weights.py       # Survey weighting functions
 ```
 
 ## Pipeline Components
@@ -41,16 +46,18 @@ Efficient 3-dataset integration with methodological quality controls:
 ### Survey Weighting (`weights.py`)
 **Population representativeness** via post-stratification weights:
 - `perspoststratweight`: Individual-level analysis
-- `hhpoststratweight`: Household-level analysis  
+- `hhpoststratweight`: Household-level analysis
+- `journey_weight`: Journey-level analysis  
 - `analysis_weight`: Auto-selected unified field
 
 **Critical**: Always weight analyses. Unweighted results misrepresent Melbourne population.
 
-### Quality Control (`validate.py`)
+### Quality Control (`validate.py`, `outlier_analysis.py`)
 **Methodological rigor**:
 - **Strategic missing value handling**: Drop >50% missing columns, median imputation <5%, zero-fill with indicators 5-50%
-- Outlier management: IQR detection, 99th percentile capping
-- Data type standardization across all WFH variables
+- **Outlier management**: IQR detection, 99th percentile capping, visual analysis via box plots
+- **Data type standardization** across all WFH variables
+- **Outlier visualization**: Box plots for journey variables (travel time, distance, elapsed time)
 
 ### Feature Engineering (`features.py`)
 **WFH metrics creation**:
