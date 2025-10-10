@@ -36,18 +36,18 @@ WFH_MAPPING = {
 }
 
 # Thresholds for Missing Data Strategy
-# Based on empirical analysis of VISTA 2023-2024 datasets:
+# Based on empirical analysis of VISTA 2023-2024 core datasets:
 # - Person dataset (n=8,175): All WFH variables have 0% missingness; only survey weights have 1.8% missing
 # - Household dataset (n=3,239): Only income groups have 2.7% missingness  
 # - Journey to Work dataset (n=1,819): 98/124 columns have >50% missingness (extended trip legs 7-15)
 
 # Column Drop Threshold: 50% missingness
 # Rationale: Columns exceeding 50% missingness provide insufficient information for reliable 
-# statistical inference, particularly when applying survey weights. In our WFH analysis:
+# statistical inference, particularly when applying survey weights. In our streamlined WFH analysis:
 # - All core WFH variables (anywfh, wfhmon-wfhfri) have 0% missingness
-# - Variables >50% missing are extended trip chain components (legs 7-15) with 99.9% missingness
+# - Journey dataset variables >50% missing are extended trip chain components (legs 7-15) with 99.9% missingness
 # - These high-missingness columns represent rare multi-modal journeys irrelevant to WFH prediction
-# - Alternative 30% threshold would unnecessarily drop columns; 70% threshold retains noise
+# - Conservative 50% threshold ensures reliable statistical inference while retaining informative variables
 MISSING_DROP_THRESHOLD = 50.0
 
 # Numeric Median Imputation Threshold: 5% missingness  
