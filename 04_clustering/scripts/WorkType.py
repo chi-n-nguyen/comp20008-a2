@@ -28,8 +28,6 @@ person_df['works_part_time_encoded'] = le.fit_transform(person_df['works_part_ti
 person_features.append('works_full_time_encoded')
 person_features.append('works_part_time_encoded')
 
-normalized_data = MinMaxScaler().fit_transform(person_df[person_features])
-
 # Standardize features
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(person_df[person_features])
@@ -45,6 +43,14 @@ for k in k_range:
     kmeans.fit(X_scaled)
     inertias.append(kmeans.inertia_)
     silhouette_scores.append(silhouette_score(X_scaled, kmeans.labels_))
+
+# find the optimal k with highest silhouette score
+max = 0
+num = 0
+for i in range(len(silhouette_scores)):
+    if silhouette_scores[i] > max:
+        max = silhouette_scores[i]
+        num = i + 2
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize = (12, 6))
 
@@ -63,10 +69,10 @@ plt.tight_layout()
 
 plt.savefig('WorkType_cluster_optimization.png', dpi=300)
 
-# Apply optimal clustering (from the two graphs above shows optimal k is 3)
-optimal_k = 6
+# Apply optimal clustering
+optimal_k = num
 kmeans_final = KMeans(n_clusters=optimal_k, random_state=42)
-person_df['cluster'] = kmeans_final.fit_predict(normalized_data)
+person_df['cluster'] = kmeans_final.fit_predict(X_scaled)
 
 # Cluster profiling
 cluster_profiles = person_df.groupby('cluster')[person_features].mean()
