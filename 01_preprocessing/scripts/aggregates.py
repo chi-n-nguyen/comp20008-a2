@@ -8,6 +8,7 @@ Functions:
 """
 
 import pandas as pd
+import config
 
 def analyze_travel_start_times(persons_df, trips_df):
     person_cols = ['persid', 'hhid', 'wfh_intensity', 'wfh_adopter', 'wfh_category', 'perspoststratweight']
