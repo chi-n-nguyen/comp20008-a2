@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+import numpy as np
 import sys
 
 
@@ -70,10 +71,19 @@ plt.tight_layout()
 plt.savefig('../outputs/age_cluster_optimization.png', dpi=300)
 plt.close()
 
-# Determine optimal k automatically
-# Find the k with highest silhouette score
+# Determine optimal k automatically with stability validation
 optimal_k = k_range[silhouette_scores.index(max(silhouette_scores))]
 print(f"Optimal k selected: {optimal_k} (Silhouette Score: {max(silhouette_scores):.3f})")
+
+# Validate cluster stability across multiple runs
+stability_scores = []
+for seed in [42, 123, 456, 789, 999]:
+    kmeans_temp = KMeans(n_clusters=optimal_k, random_state=seed)
+    labels_temp = kmeans_temp.fit_predict(X_scaled)
+    stability_scores.append(silhouette_score(X_scaled, labels_temp))
+
+print(f"Cluster stability across 5 runs: {np.mean(stability_scores):.3f} ± {np.std(stability_scores):.3f}")
+
 kmeans_final = KMeans(n_clusters=optimal_k, random_state=42)
 person_df['cluster'] = kmeans_final.fit_predict(X_scaled)
 

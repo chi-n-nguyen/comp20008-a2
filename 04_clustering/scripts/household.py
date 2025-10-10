@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import re
 import pandas as pd
+import numpy as np
 import sys
 
 
@@ -84,10 +85,19 @@ plt.tight_layout()
 plt.savefig('../outputs/household_cluster_optimization.png', dpi=300)
 plt.close()
 
-# Determine optimal k automatically
-# Find the k with highest silhouette score
+# Determine optimal k automatically with stability validation
 optimal_k = k_range[silhouette_scores.index(max(silhouette_scores))]
 print(f"Optimal k selected: {optimal_k} (Silhouette Score: {max(silhouette_scores):.3f})")
+
+# Validate cluster stability across multiple runs
+stability_scores = []
+for seed in [42, 123, 456, 789, 999]:
+    kmeans_temp = KMeans(n_clusters=optimal_k, random_state=seed)
+    labels_temp = kmeans_temp.fit_predict(X_scaled)
+    stability_scores.append(silhouette_score(X_scaled, labels_temp))
+
+print(f"Cluster stability across 5 runs: {np.mean(stability_scores):.3f} ± {np.std(stability_scores):.3f}")
+
 kmeans_final = KMeans(n_clusters=optimal_k, random_state=42)
 household_df['cluster'] = kmeans_final.fit_predict(X_scaled)
 
@@ -108,9 +118,12 @@ sklearn_pca = PCA(n_components=2)
 X_pca = sklearn_pca.fit_transform(X_scaled)
 
 plt.figure(figsize=(10, 8))
-sns.scatterplot(x = X_pca[:,0],
-                y = X_pca[:,1],
-                hue = kmeans_final.labels_)
+sns.scatterplot(x=X_pca[:, 0],
+                y=X_pca[:, 1],
+                hue=kmeans_final.labels_,
+                palette='Set2',
+                alpha=0.6,
+                s=50)
 plt.xlabel('Overall WFH adoption & intensity')
 plt.ylabel('Work structure & income vs WFH')
 plt.title('Household WFH Clusters (PCA Visualization)')
