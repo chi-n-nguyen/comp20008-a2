@@ -40,16 +40,17 @@ def average_yearly(s):
         elif len(num_list) == 4:
             average = (num_list[2] + num_list[3]) / 2
             return average
+        else:
+            return None
         
 household_df['household_income_group'] = household_df['household_income_group'].apply(average_yearly)
         
 
-# Normalize features
+# Handle missing values and standardize features
 median = household_df[household_features].median()
 household_df[household_features] = household_df[household_features].fillna(median)
-normalized_data = MinMaxScaler().fit_transform(household_df[household_features])
 
-# Standardize features
+# Use consistent scaling method
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(household_df[household_features])
 
@@ -80,14 +81,15 @@ ax2.set_xlabel('Number of Clusters')
 ax2.set_ylabel('Silhouette Score')
 plt.tight_layout()
 
-plt.savefig('../outputs/househould_cluster_optimization.png', dpi=300)
+plt.savefig('../outputs/household_cluster_optimization.png', dpi=300)
+plt.close()
 
 # Determine optimal k automatically
 # Find the k with highest silhouette score
 optimal_k = k_range[silhouette_scores.index(max(silhouette_scores))]
 print(f"Optimal k selected: {optimal_k} (Silhouette Score: {max(silhouette_scores):.3f})")
 kmeans_final = KMeans(n_clusters=optimal_k, random_state=42)
-household_df['cluster'] = kmeans_final.fit_predict(normalized_data)
+household_df['cluster'] = kmeans_final.fit_predict(X_scaled)
 
 # Cluster profiling
 cluster_profiles = household_df.groupby('cluster')[household_features].mean()
@@ -115,4 +117,5 @@ plt.title('Household WFH Clusters (PCA Visualization)')
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.savefig('../outputs/household_clusters_pca.png', dpi=300)
+plt.close()
 
