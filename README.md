@@ -28,14 +28,16 @@ comp20008-a2/
 │   ├── scripts/
 │   │   ├── initial_assessment.py
 │   │   ├── data_integration.py     # Main pipeline orchestrator
-│   │   ├── config.py
-│   │   ├── features.py
-│   │   ├── aggregates.py
-│   │   ├── validate.py
-│   │   ├── variable_mapping.py
-│   │   └── weights.py
+│   │   ├── config.py               # Configuration constants
+│   │   ├── features.py             # Feature engineering functions
+│   │   ├── aggregates.py           # Dataset aggregation utilities
+│   │   ├── validate.py             # Data validation and outlier handling
+│   │   ├── variable_mapping.py     # Variable name transformations
+│   │   ├── weights.py              # Survey weighting functions
+│   │   └── outlier_analysis.py     # Outlier visualization and analysis
 │   └── outputs/
 │       ├── initial_data_overview.png
+│       ├── outlier_boxplots.png    # Box plots for outlier analysis
 │       ├── processed_person_master.csv
 │       ├── processed_person_master_readable.csv
 │       ├── processed_person_master_readable_feature_dictionary.json
@@ -56,7 +58,7 @@ comp20008-a2/
 │   ├── scripts/
 │   │   ├── main.py                 # Main WFH prediction pipeline
 │   │   ├── data_loader.py          # Data loading utilities
-│   │   ├── preprocessing.py        # Feature preprocessing
+│   │   ├── preprocessing.py        # Feature preprocessing for ML
 │   │   ├── models.py               # ML model implementations
 │   │   ├── evaluation.py           # Model evaluation metrics
 │   │   └── visualization.py        # Results visualization
@@ -64,18 +66,17 @@ comp20008-a2/
 │       ├── feature_importance.png
 │       └── wfh_prediction_results.png
 ├── 04_clustering/                  # Unsupervised learning and segmentation
-│   ├── 1.py                        # Clustering implementation script 1
-│   ├── 2.py                        # Clustering implementation script 2
-│   ├── 3.py                        # Clustering implementation script 3
+│   ├── scripts/
+│   │   ├── household.py            # Household clustering analysis
+│   │   ├── age.py                  # Age-based clustering
+│   │   └── WorkType.py             # Work type clustering
 │   └── outputs/
 │       ├── household_clusters_pca.png
-│       ├── household_geographic_cluster_distribution.png
 │       ├── househould_cluster_optimization.png
-│       ├── person_cluster_optimization.png
-│       └── person_household_clusters_pca.png
-├── cluster_optimization.png        # Additional clustering outputs
-├── geographic_cluster_distribution.png
-├── household_clusters_pca.png
+│       ├── age_cluster_optimization.png
+│       ├── age_household_clusters_pca.png
+│       ├── WorkType_cluster_optimization.png
+│       └── WorkType_household_clusters_pca.png
 └── README.md
 ```
 
@@ -153,7 +154,10 @@ pip install pandas numpy matplotlib seaborn scikit-learn scipy
 
 4. **Perform clustering**:
    ```bash
-   cd 04_clustering && python 1.py && python 2.py && python 3.py
+   cd 04_clustering/scripts
+   python household.py
+   python age.py
+   python WorkType.py
    ```
 
 ---
