@@ -67,7 +67,7 @@ ax2.set_xlabel('Number of Clusters')
 ax2.set_ylabel('Silhouette Score')
 plt.tight_layout()
 
-plt.savefig('age_cluster_optimization.png', dpi=300)
+plt.savefig('../outputs/age_cluster_optimization.png', dpi=300)
 
 # Determine optimal k automatically
 # Find the k with highest silhouette score
@@ -104,4 +104,4 @@ plt.ylabel('WFH stability vs age group')
 plt.title('Age WFH Clusters (PCA Visualization)')
 plt.legend()
 plt.grid(True, alpha=0.3)
-plt.savefig('age_household_clusters_pca.png', dpi=300)
+plt.savefig('../outputs/age_household_clusters_pca.png', dpi=300)

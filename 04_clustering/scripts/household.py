@@ -80,10 +80,12 @@ ax2.set_xlabel('Number of Clusters')
 ax2.set_ylabel('Silhouette Score')
 plt.tight_layout()
 
-plt.savefig('househould_cluster_optimization.png', dpi=300)
+plt.savefig('../outputs/househould_cluster_optimization.png', dpi=300)
 
-# Apply optimal clustering (from the two graphs above shows optimal k is 2)
-optimal_k = 3
+# Determine optimal k automatically
+# Find the k with highest silhouette score
+optimal_k = k_range[silhouette_scores.index(max(silhouette_scores))]
+print(f"Optimal k selected: {optimal_k} (Silhouette Score: {max(silhouette_scores):.3f})")
 kmeans_final = KMeans(n_clusters=optimal_k, random_state=42)
 household_df['cluster'] = kmeans_final.fit_predict(normalized_data)
 
@@ -112,5 +114,5 @@ plt.ylabel('Work structure & income vs WFH')
 plt.title('Household WFH Clusters (PCA Visualization)')
 plt.legend()
 plt.grid(True, alpha=0.3)
-plt.savefig('household_clusters_pca.png', dpi=300)
+plt.savefig('../outputs/household_clusters_pca.png', dpi=300)
 

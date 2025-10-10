@@ -68,7 +68,7 @@ ax2.set_xlabel('Number of Clusters')
 ax2.set_ylabel('Silhouette Score')
 plt.tight_layout()
 
-plt.savefig('WorkType_cluster_optimization.png', dpi=300)
+plt.savefig('../outputs/WorkType_cluster_optimization.png', dpi=300)
 
 # Determine optimal k automatically  
 # Find the k with highest silhouette score
@@ -105,4 +105,4 @@ plt.ylabel('WFH stability & employment pattern')
 plt.title('WorkType WFH Clusters (PCA Visualization)')
 plt.legend()
 plt.grid(True, alpha=0.3)
-plt.savefig('WorkType_household_clusters_pca.png', dpi=300)
+plt.savefig('../outputs/WorkType_household_clusters_pca.png', dpi=300)
