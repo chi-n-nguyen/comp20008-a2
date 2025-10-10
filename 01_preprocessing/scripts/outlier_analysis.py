@@ -7,13 +7,17 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+import os
 
 def create_outlier_boxplots():
     """Create box plots for outlier analysis of journey data"""
     
     # Load the processed journey data
     try:
-        df = pd.read_csv('/Users/nhatchi.nguyen/eodp/comp20008-a2-3/01_preprocessing/outputs/processed_journey_master.csv')
+        # Use relative path to outputs directory
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        data_path = os.path.join(script_dir, '..', 'outputs', 'processed_journey_master.csv')
+        df = pd.read_csv(data_path)
         print(f"Loaded journey data: {df.shape[0]} rows, {df.shape[1]} columns")
     except FileNotFoundError:
         print("Error: processed_journey_master.csv not found. Run data_integration.py first.")
@@ -79,7 +83,7 @@ def create_outlier_boxplots():
     plt.suptitle('Journey Data Outlier Analysis', fontsize=14, fontweight='bold', y=1.02)
     
     # Save the plot
-    output_path = '/Users/nhatchi.nguyen/eodp/comp20008-a2-3/01_preprocessing/outputs/outlier_boxplots.png'
+    output_path = os.path.join(script_dir, '..', 'outputs', 'outlier_boxplots.png')
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     print(f"\nBox plots saved to: {output_path}")
     

@@ -51,7 +51,7 @@ def calculate_weighted_nmi_and_weights(df, var_name, target_var="wfh_adopter", w
     # Calculate total weight per class (for weight percentage)
     class_total_weight = df.groupby(var_name)[weight_col].sum()  
     total_weight_all = class_total_weight.sum()  
-    class_weight_pct = (class_total_weight / total_weight_all * 100).round(2)  
+    class_weight_pct = (class_total_weight / total_weight_all * 100).round(2) if total_weight_all > 0 else pd.Series(0, index=class_total_weight.index)  
     
     # Calculate WFH adopter rate (weighted)
     adopter_rate = (weighted_ct[1] / weighted_ct.sum(axis=1) * 100).round(2)  
@@ -70,7 +70,8 @@ def calculate_weighted_nmi_and_weights(df, var_name, target_var="wfh_adopter", w
             if p_xy > 0:
                 p_x = marginal_feature[feature_value]
                 p_y = marginal_wfh[wfh_value]
-                mi += p_xy * math.log2(p_xy / (p_x * p_y))
+                if p_x > 0 and p_y > 0:  # Avoid division by zero
+                    mi += p_xy * math.log2(p_xy / (p_x * p_y))
     
     h_var = -sum(p * math.log2(p) for p in marginal_feature if p > 0)
     h_wfh = -sum(p * math.log2(p) for p in marginal_wfh if p > 0)

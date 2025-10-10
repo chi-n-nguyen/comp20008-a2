@@ -5,9 +5,18 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+import sys
 
 
-person_df = pd.read_csv("01_preprocessing/outputs/processed_person_master_readable.csv")
+try:
+    person_df = pd.read_csv("../../01_preprocessing/outputs/processed_person_master_readable.csv")
+    print(f"Loaded person data successfully: {person_df.shape[0]} rows, {person_df.shape[1]} columns")
+except FileNotFoundError:
+    print("Error: processed_person_master_readable.csv not found. Run preprocessing pipeline first.")
+    exit(1)
+except Exception as e:
+    print(f"Error loading person data: {e}")
+    exit(1)
 
 person_df['wfh_frequency'] = person_df[['wfh_monday', 'wfh_tuesday', 'wfh_wednesday', 'wfh_thursday', 'wfh_friday', 'wfh_saturday', 'wfh_sunday']].sum(axis=1)
 person_df['wfh_consistency'] = person_df[['wfh_monday', 'wfh_tuesday', 'wfh_wednesday', 'wfh_thursday', 'wfh_friday']].std(axis=1) 
@@ -27,9 +36,7 @@ person_df['agegroup_encoded'] = le.fit_transform(person_df['age_group'].fillna('
 
 person_features.append('agegroup_encoded')
 
-normalized_data = MinMaxScaler().fit_transform(person_df[person_features])
-
-# Standardize features
+# Standardize features (use one consistent scaling method)
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(person_df[person_features])
 
@@ -62,10 +69,12 @@ plt.tight_layout()
 
 plt.savefig('age_cluster_optimization.png', dpi=300)
 
-# Apply optimal clustering (from the two graphs above shows optimal k is 3)
-optimal_k = 3
+# Determine optimal k automatically
+# Find the k with highest silhouette score
+optimal_k = k_range[silhouette_scores.index(max(silhouette_scores))]
+print(f"Optimal k selected: {optimal_k} (Silhouette Score: {max(silhouette_scores):.3f})")
 kmeans_final = KMeans(n_clusters=optimal_k, random_state=42)
-person_df['cluster'] = kmeans_final.fit_predict(normalized_data)
+person_df['cluster'] = kmeans_final.fit_predict(X_scaled)
 
 # Cluster profiling
 cluster_profiles = person_df.groupby('cluster')[person_features].mean()

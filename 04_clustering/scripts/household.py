@@ -5,9 +5,18 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import re
 import pandas as pd
+import sys
 
 
-household_df = pd.read_csv("01_preprocessing/outputs/processed_household_master_readable.csv")
+try:
+    household_df = pd.read_csv("../../01_preprocessing/outputs/processed_household_master_readable.csv")
+    print(f"Loaded household data successfully: {household_df.shape[0]} rows, {household_df.shape[1]} columns")
+except FileNotFoundError:
+    print("Error: processed_household_master_readable.csv not found. Run preprocessing pipeline first.")
+    exit(1)
+except Exception as e:
+    print(f"Error loading household data: {e}")
+    exit(1)
 
 
 household_features = [

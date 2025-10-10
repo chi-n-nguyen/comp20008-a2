@@ -19,7 +19,15 @@ output_dir.mkdir(exist_ok=True)
 
 # Define data file path and load data
 data_path = os.path.abspath(os.path.join(script_dir, "../../01_preprocessing/outputs/processed_person_master_readable.csv"))
-df = pd.read_csv(data_path)
+try:
+    df = pd.read_csv(data_path)
+    print(f"Loaded person data successfully: {df.shape[0]} rows, {df.shape[1]} columns")
+except FileNotFoundError:
+    print(f"Error: File not found at {data_path}. Run preprocessing pipeline first.")
+    exit(1)
+except Exception as e:
+    print(f"Error loading person data: {e}")
+    exit(1)
 
 # Filter valid samples: only "Yes/No" for works_from_home_any, and non-null analysis_weight
 valid_df = df[
@@ -38,11 +46,11 @@ def calculate_weighted_nmi(df, var_name, target_var="works_from_home_any", weigh
     
     class_total_weight = df.groupby(var_name)[weight_col].sum()
     total_weight_all = class_total_weight.sum()
-    class_weight_pct = (class_total_weight / total_weight_all * 100).round(2)
+    class_weight_pct = (class_total_weight / total_weight_all * 100).round(2) if total_weight_all > 0 else pd.Series(0, index=class_total_weight.index)
     
     # Calculate joint probability
     total_weight = weighted_ct.sum().sum()
-    joint_prob = weighted_ct / total_weight
+    joint_prob = weighted_ct / total_weight if total_weight > 0 else weighted_ct * 0
     
     # Calculate marginal probabilities for the variable and target
     marginal_var = joint_prob.sum(axis=1)
@@ -58,7 +66,8 @@ def calculate_weighted_nmi(df, var_name, target_var="works_from_home_any", weigh
             if p_xy > 0:  # Avoid log(0)
                 p_x = marginal_var[feature_value]
                 p_y = marginal_wfh[wfh_value]
-                mi += p_xy * math.log2(p_xy / (p_x * p_y))
+                if p_x > 0 and p_y > 0:  # Avoid division by zero
+                    mi += p_xy * math.log2(p_xy / (p_x * p_y))
     
     # Calculate weighted Entropy
     h_var = -sum(p * math.log2(p) for p in marginal_var if p > 0)
